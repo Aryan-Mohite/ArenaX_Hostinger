@@ -1,0 +1,173 @@
+[
+  {
+    "slug": "counter-strike",
+    "game_name": "Counter-Strike",
+    "genre": "Tactical FPS",
+    "developer": "Valve",
+    "release_year": 2000,
+    "rating": 4.8,
+    "platforms": "PC / Console",
+    "description": "The world's most iconic tactical first-person shooter. Two teams — Terrorists and Counter-Terrorists — battle across iconic maps in search and destroy scenarios. Known for its precise gunplay, deep competitive meta, and massive esports scene.",
+    "cover_image": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/header.jpg",
+    "screenshots": [
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/ss_34090f24290a2f6b5b16cf2b4d9a1b6c67bbb66e.jpg",
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/ss_b601b58a6bf29ca97bded48d74d0e8eb1d5c2d0c.jpg"
+    ]
+  },
+  {
+    "slug": "dota-2",
+    "game_name": "Dota 2",
+    "genre": "MOBA",
+    "developer": "Valve",
+    "release_year": 2013,
+    "rating": 4.6,
+    "platforms": "PC / Console",
+    "description": "Dota 2 is a deep, complex multiplayer online battle arena where two teams of five heroes clash to destroy the enemy Ancient. With over 120 heroes, a rich item system, and The International — one of the world's biggest esports events — Dota 2 rewards thousands of hours of mastery.",
+    "cover_image": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/header.jpg",
+    "screenshots": [
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/ss_86d675fdc73ba10462abb8f5eca2b5e90bcf0b47.jpg",
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/ss_b1e2a21de6fec5a6e6d82be93a23a90c7e3c3a6b.jpg"
+    ]
+  },
+  
+  {
+    "slug": "apex-legends",
+    "game_name": "Apex Legends",
+    "genre": "Battle Royale",
+    "developer": "Respawn Entertainment",
+    "release_year": 2019,
+    "rating": 4.5,
+    "platforms": "PC / Console",
+    "description": "Apex Legends is a free-to-play battle royale where squads of three choose from a roster of Legends with unique abilities. Fast movement, ping communication, and hero synergy set it apart. The ALGS (Apex Legends Global Series) hosts millions in prize money annually.",
+    "cover_image": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1172470/header.jpg",
+    "screenshots": [
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1172470/ss_3b5082d0b5f3d7f5e8c6b9e9bcdde5ac2fc31ef0.jpg",
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1172470/ss_45fbde7d0d21b4e4e8b2f5a0c2e0f3a7e42d3c8e.jpg"
+    ]
+  },
+  {
+    "slug": "valorant",
+    "game_name": "Valorant",
+    "genre": "Tactical FPS",
+    "developer": "Riot Games",
+    "release_year": 2020,
+    "rating": 4.7,
+    "platforms": "PC / Console",
+    "description": "Valorant is Riot Games' tactical FPS blending precise gunplay with hero abilities. Two teams of five agents battle over a spike plant/defuse objective across multiple maps. The VCT (Valorant Champions Tour) is one of the fastest growing esports ecosystems globally.",
+    "cover_image": "https://cdn.akamai.steamstatic.com/steam/apps/2357570/header.jpg",
+    "screenshots": [
+      "https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt97bc0e77bbdfc64e/62e0cac5cdc67a44b7474a30/Valorant_2022_E5A1_PlayVALORANT_ContentStackThumbnail_1200x625_MB01.jpg",
+      "https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt7fdf52e65ec52a62/5eb75e5f4f08d54fd18d3374/122220_VALORANT_AgentPage_Jett_Banner.jpg"
+    ]
+  },
+ 
+  {
+    "slug": "league-of-legends",
+    "game_name": "League of Legends",
+    "genre": "MOBA",
+    "developer": "Riot Games",
+    "release_year": 2009,
+    "rating": 4.5,
+    "platforms": "PC / Console",
+    "description": "League of Legends is the most played PC game in the world. Two teams of five champions battle to destroy the enemy Nexus across Summoner's Rift. With hundreds of champions, deep strategic depth, and the Worlds Championship drawing tens of millions of viewers, LoL is the defining esport.",
+    "cover_image": "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_0.jpg",
+    "screenshots": [
+      "https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S1_2560x1440-80471984a05c2c6b3ba2d3986f8c92a8",
+      "https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S1_2560x1440-80471984a05c2c6b3ba2d3986f8c92a8"
+    ]
+  },
+  
+  
+  
+  {
+    "slug": "warzone",
+    "game_name": "Call of Duty: Warzone",
+    "genre": "Battle Royale",
+    "developer": "Activision",
+    "release_year": 2020,
+    "rating": 4.3,
+    "platforms": "PC / Console",
+    "description": "Call of Duty: Warzone is a free-to-play battle royale dropping up to 150 players into Verdansk, Al Mazrah, and Urzikstan. With COD gunplay at its core, the Gulag resurrection system, and cross-play across all platforms, Warzone became one of the most-played games ever released.",
+    "cover_image": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1962663/header.jpg",
+    "screenshots": [
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1962663/ss_1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b.jpg",
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1962663/ss_0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a.jpg"
+    ]
+  },
+  {
+    "slug": "battlegrounds-mobile-india",
+    "game_name": "Battlegrounds Mobile India",
+    "genre": "Battle Royale",
+    "developer": "Krafton",
+    "release_year": 2021,
+    "rating": 4.3,
+    "platforms": "Mobile",
+    "description": "BGMI is the India-exclusive version of PUBG Mobile, built specifically for the Indian gaming audience. Teams of 4 compete across Erangel, Miramar, and Sanhok maps to be the last squad standing. BGMI Esports has exploded with massive prize pools and dedicated regional circuits.",
+    "cover_image": "https://play-lh.googleusercontent.com/JRd05pyBH41qjgsR_CDje2bF6EMk2WPFUdG5sNYjQOZ12M9hulZ_5a6CeYGXTxM4_Pg",
+    "screenshots": [
+      "https://play-lh.googleusercontent.com/L8nRV7h0g6fO-WRQsNH0BKD1YQb5Z5KX9cC-ZEkb5cY0j0dCRXnwYq7dX3O53kXXzQ",
+      "https://play-lh.googleusercontent.com/1HW3zxNVjxpn3C16V62J3EjbU3-mFk1LQj68fPJLG5VnExq7p7FaR9SWY4oKy3-5UA"
+    ]
+  },
+  {
+    "slug": "pubg-battlegrounds",
+    "game_name": "PUBG: Battlegrounds",
+    "genre": "Battle Royale",
+    "developer": "Krafton",
+    "release_year": 2017,
+    "rating": 4.2,
+    "platforms": "PC / Console",
+    "description": "PUBG: Battlegrounds is the original battle royale that launched a genre. Up to 100 players parachute onto an island, scavenge for weapons and gear, and fight to be the last one standing inside a shrinking playzone. PUBG Global Championship is one of the most prestigious BR esports events.",
+    "cover_image": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/578080/header.jpg",
+    "screenshots": [
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/578080/ss_2f6e8a2b9e45d6f0c1b9a0d8a5e44c6b8f4d5c3e.jpg",
+      "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/578080/ss_7b3e5c1f0d9a4e2b8f6c0a3d7e1b5f9c2a4e6d8b.jpg"
+    ]
+  },
+  {
+    "slug": "free-fire",
+    "game_name": "Free Fire",
+    "genre": "Battle Royale",
+    "developer": "Garena",
+    "release_year": 2017,
+    "rating": 4.2,
+    "platforms": "Mobile",
+    "description": "Garena Free Fire is the most downloaded mobile game in the world. 50 players drop onto a remote island, scavenge for weapons, and battle to be the last one alive in matches under 10 minutes. Designed for low-end devices, Free Fire has built a massive esports ecosystem across South and Southeast Asia.",
+    "cover_image": "https://play-lh.googleusercontent.com/WWcMGBjDMXpHyBFfxDhVuGpVZYyBECjTMj-hHX6BSipJoMv-Z_iMU6dFM3f2hE5RXQE",
+    "screenshots": [
+      "https://play-lh.googleusercontent.com/z_r3sL0yc4Y5WfN1s5K5q4kNcDiDdkJJvGXjQRlpNfFn-8dXAfJsJLBE3g3WQz63Hg",
+      "https://play-lh.googleusercontent.com/3Kc3K_fFNr0c2q5XQsXZ8qR_6J0j2VxV8m5-tRZ9sxJP6N9Lv3mZ6iKmZ7F9XqXxWA"
+    ]
+  },
+  {
+    "slug": "fortnite",
+    "game_name": "Fortnite",
+    "genre": "Battle Royale",
+    "developer": "Epic Games",
+    "release_year": 2017,
+    "rating": 4.4,
+    "platforms": "PC / Console",
+    "description": "Fortnite is the world's biggest battle royale phenomenon. 100 players drop into a colorful island, build structures, and fight to be the last one standing. Epic's Fortnite Champion Series and mega-events like Fortnite World Cup offer millions in prize money and millions more viewers worldwide.",
+    "cover_image": "https://cdn2.unrealengine.com/fortnite-chapter5-season4-key-art-1920x1080-dc5ac6ce6a4b.jpg",
+    "screenshots": [
+      "https://cdn2.unrealengine.com/14br-ch4s4-kv-landscape-1920x1080-3d0c1e2f.jpg",
+      "https://cdn2.unrealengine.com/fortnite-og-1920x1080-1920x1080-6dbaa65d1c3a.jpg"
+    ]
+  },
+  {
+    "slug": "cod-mobile",
+    "game_name": "Call of Duty: Mobile",
+    "genre": "FPS",
+    "developer": "Activision / TiMi Studio",
+    "release_year": 2019,
+    "rating": 4.4,
+    "platforms": "Mobile",
+    "description": "Call of Duty: Mobile brings the signature COD multiplayer experience — classic maps, ranked play, and a full battle royale mode — to mobile devices. With iconic maps like Nuketown and Shipment, intuitive touch controls, and the COD Mobile World Championship, it is the #1 mobile FPS globally.",
+    "cover_image": "https://play-lh.googleusercontent.com/3rQX4_9s3f8hLO_4Z5Kf8FYz1-HI6LqDMlGF7P_M6G2lhSGXiMw7G4RBvMwGr_mvJE",
+    "screenshots": [
+      "https://play-lh.googleusercontent.com/gEqI8Fba0cR5OPLOAfGwjF1P_0aMXzjUzj_gzM_zjrqJP-NaYOjH3l-3zZcNbzGhWQ",
+      "https://play-lh.googleusercontent.com/hNz5fB1H3G5tV3T8R1X2Kw4ZX5L7M9P1Q3S5U7W9Y1A3C5E7G9I1K3M5O7Q9S1U3W5Y"
+    ]
+  }
+  
+]

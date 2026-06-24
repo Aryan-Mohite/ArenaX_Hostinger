@@ -1,11 +1,11 @@
 {
-  "name": "esports-platform-backend",
+  "name": "ArenaX-backend",
   "version": "1.0.0",
-  "description": "eSports platform backend API",
+  "description": "ArenaX backend API",
   "main": "server.js",
   "type": "module",
 "scripts": {
-  "dev": "nodemon --env-file=.env server.js",
+  "dev": "nodemon server.js",
   "start": "node server.js"
 },
   "keywords": [],

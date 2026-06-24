@@ -3,21 +3,7 @@ import http from "http";
 import app from "./src/app.js";
 import { initSocket } from "./src/socket.js";
 import pool from "./src/config/db.js";
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '../public_html')));
-
-// Catch-all: send index.html for any non-API route (React Router support)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public_html', 'index.html'));
-});
-
-// ─── Required environment variable guard ──────────────────────────────────────
 const REQUIRED_ENV = ["DB_USER", "DB_HOST", "DB_NAME", "DB_PASSWORD", "JWT_SECRET"];
 const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
 if (missing.length > 0) {
@@ -34,7 +20,6 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT} [${process.env.NODE_ENV}]`);
 });
 
-// Graceful shutdown — mysql2 pool.end() works the same as pg's
 const shutdown = (signal) => {
   console.log(`${signal} received. Shutting down gracefully...`);
   server.close(async () => {

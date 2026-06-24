@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes       from "./routes/authRoutes.js";
 import userRoutes       from "./routes/userRoutes.js";
@@ -19,6 +21,9 @@ import archiveRoutes    from "./routes/archiveRoutes.js";
 import adminRoutes      from "./routes/adminRoutes.js";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 const app = express();
 
@@ -118,6 +123,15 @@ app.use("/api/matches",     matchRoutes);
 // app.use("/api/stats",       statsRoutes);
 app.use("/api/archive",     archiveRoutes);
 app.use("/api/admin",       adminRoutes);
+
+// ─── STATIC FRONTEND (must be after API routes, before error handlers) ────────
+// Serves the Vite production build bundled inside the nodejs app folder.
+// Structure: nodejs/frontend/dist  (app.js lives in nodejs/src, so go up one level)
+const frontendDist = path.join(__dirname, "..", "frontend", "dist");
+app.use(express.static(frontendDist));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendDist, "index.html"));
+});
 
 // ─── ERROR HANDLING (must be last) ────────────────────────────────────────────
 app.use(notFound);

@@ -1,9 +1,9 @@
 import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import { rateLimit } from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import cors from "cors";
 
 import authRoutes       from "./routes/authRoutes.js";
 import userRoutes       from "./routes/userRoutes.js";
@@ -12,11 +12,8 @@ import tournamentRoutes from "./routes/tournamentRoutes.js";
 import teamRoutes       from "./routes/teamRoutes.js";
 import teamFinderRoutes from "./routes/teamFinderRoutes.js";
 import communityRoutes  from "./routes/communityRoutes.js";
-import messageRoutes    from "./routes/messageRoutes.js";
 import streamRoutes     from "./routes/streamRoutes.js";
 import matchRoutes      from "./routes/matchRoutes.js";
-// [COMING SOON] Stat Sync feature — temporarily disabled
-// import statsRoutes      from "./routes/statsRoutes.js";
 import archiveRoutes    from "./routes/archiveRoutes.js";
 import adminRoutes      from "./routes/adminRoutes.js";
 
@@ -30,27 +27,22 @@ const app = express();
 // ─── TRUST PROXY ──────────────────────────────────────────────────────────────
 app.set("trust proxy", 1);
 
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
+app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : "*", credentials: true }));
+
 // ─── SECURITY HEADERS (Helmet) ────────────────────────────────────────────────
-// Explicit CSP instead of Helmet default.
-// Default Helmet CSP blocks: inline React scripts, Google Fonts, Socket.io WS.
-// Configured to allow exactly what ArenaX needs and nothing more.
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
-  .split(",")
-  .map((o) => o.trim());
-
-// Build wss:// equivalents for WebSocket CSP
-const wsOrigins = allowedOrigins.map((o) => o.replace(/^https:/, "wss:").replace(/^http:/, "ws:"));
-
+// Configured for same-origin SPA served by this Express server.
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc:  ["'self'"],
-        scriptSrc:   ["'self'"],
+        scriptSrc:   ["'self'", "'unsafe-inline'"],
         styleSrc:    ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
         fontSrc:     ["'self'", "https://fonts.gstatic.com", "data:"],
         imgSrc:      ["'self'", "data:", "https:", "blob:"],
-        connectSrc:  ["'self'", ...allowedOrigins, ...wsOrigins],
+        connectSrc:  ["'self'"],
         mediaSrc:    ["'self'", "blob:", "https:"],
         frameSrc:    ["'none'"],
         objectSrc:   ["'none'"],
@@ -59,21 +51,7 @@ app.use(
         upgradeInsecureRequests: process.env.NODE_ENV === "production" ? [] : null,
       },
     },
-    crossOriginEmbedderPolicy: false, // allow embedded media (stream embeds)
-  })
-);
-
-// ─── CORS ─────────────────────────────────────────────────────────────────────
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: origin ${origin} not allowed`));
-      }
-    },
-    credentials: true,
+    crossOriginEmbedderPolicy: false,
   })
 );
 
@@ -99,14 +77,37 @@ app.use("/api/auth", authLimiter);
 app.use("/api", apiLimiter);
 
 // ─── BODY PARSING ─────────────────────────────────────────────────────────────
-// FIX MINOR-1: limit raised from 1mb → 5mb.
-// The old 1mb limit silently rejected base64 profile pictures (up to ~3.75 MB)
-// with a 413 before the request ever reached the controller size-check.
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
-app.get("/health", (_req, res) => res.json({ status: "ok" }));
+app.get("/health", async (_req, res) => {
+  const checks = {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    node: process.version,
+    env: process.env.NODE_ENV || "not set",
+    port: process.env.PORT || "not set (using 5000)",
+    db: { host: process.env.DB_HOST || "not set", user: process.env.DB_USER || "not set", name: process.env.DB_NAME || "not set" },
+    envVars: {
+      DB_HOST:      !!process.env.DB_HOST,
+      DB_USER:      !!process.env.DB_USER,
+      DB_NAME:      !!process.env.DB_NAME,
+      DB_PASSWORD:  !!process.env.DB_PASSWORD,
+      JWT_SECRET:   !!process.env.JWT_SECRET,
+    }
+  };
+  try {
+    const pool = (await import("./config/db.js")).default;
+    const conn = await pool.getConnection();
+    conn.release();
+    checks.dbConnection = "connected";
+  } catch (e) {
+    checks.dbConnection = "failed: " + e.message;
+    checks.status = "degraded";
+  }
+  res.json(checks);
+});
 
 // ─── API ROUTES ───────────────────────────────────────────────────────────────
 app.use("/api/auth",        authRoutes);
@@ -116,24 +117,24 @@ app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/teams",       teamRoutes);
 app.use("/api/teamfinder",  teamFinderRoutes);
 app.use("/api/communities", communityRoutes);
-app.use("/api/messages",    messageRoutes);
 app.use("/api/streams",     streamRoutes);
 app.use("/api/matches",     matchRoutes);
-// [COMING SOON] Stat Sync routes — temporarily disabled
-// app.use("/api/stats",       statsRoutes);
 app.use("/api/archive",     archiveRoutes);
 app.use("/api/admin",       adminRoutes);
 
-// ─── STATIC FRONTEND (must be after API routes, before error handlers) ────────
-// Serves the Vite production build bundled inside the nodejs app folder.
-// Structure: nodejs/frontend/dist  (app.js lives in nodejs/src, so go up one level)
-const frontendDist = path.join(__dirname, "..", "frontend", "dist");
-app.use(express.static(frontendDist));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendDist, "index.html"));
+// ─── SERVE REACT FRONTEND (SPA) ───────────────────────────────────────────────
+// Serves the Vite-built React app for all non-API routes.
+// frontend/dist is populated by running: npm run build:frontend
+const distPath = path.resolve(__dirname, "../frontend/dist");
+app.use(express.static(distPath));
+
+// SPA fallback — any route not matched by the API returns index.html
+// so React Router handles client-side navigation.
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
-// ─── ERROR HANDLING (must be last) ────────────────────────────────────────────
+// ─── ERROR HANDLING (must come after all routes) ──────────────────────────────
 app.use(notFound);
 app.use(errorHandler);
 

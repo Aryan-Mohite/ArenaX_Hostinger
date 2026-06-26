@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import pool from "../config/db.js";
 import { generateToken } from "../utils/jwt.js";
 import { generateOtp, compareOtp } from "../utils/otp.js";

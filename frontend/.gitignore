@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment — NEVER commit (C1)
+.env
+.env.local
+.env.*.local
+# Keep .env.example and .env.production (no secrets, just config template)
+
+# Sourcemaps — never expose in git
+*.map
+
+# OS / IDE
+.DS_Store
+.vscode/
+Thumbs.db

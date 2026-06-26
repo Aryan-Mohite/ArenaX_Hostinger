@@ -17,7 +17,6 @@ const pool = mysql.createPool({
   supportBigNumbers:  true,
   bigNumberStrings:   false,
   enableKeepAlive:    true,
-  keepAliveInitDelay: 10000,
 
   typeCast(field, next) {
     if (field.type === "TINY" && field.length === 1) {
@@ -70,7 +69,8 @@ const connectWithRetry = async (retries = 3, delayMs = 2000) => {
       console.error(`❌ DB connection attempt ${i}/${retries} failed: ${err.message}`);
       if (i === retries) {
         console.error("All DB connection attempts exhausted. Check DB_HOST, DB_USER, DB_PASSWORD in .env");
-        process.exit(1);
+        // Do NOT exit — server stays alive so /health endpoint can report status
+        return;
       }
       await new Promise((r) => setTimeout(r, delayMs * i));
     }

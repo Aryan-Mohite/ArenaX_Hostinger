@@ -208,16 +208,18 @@ export const getFollowStatus = async (req, res, next) => {
       pool.query(
         `SELECT
            (SELECT COUNT(*) FROM user_follows    WHERE following_id = ?) AS followers,
-           (SELECT COUNT(*) FROM user_follows    WHERE follower_id  = ?) AS following,
+           (SELECT COUNT(*) FROM user_follows    WHERE follower_id  = ?) AS following_count,
            (SELECT COUNT(*) FROM community_posts WHERE user_id      = ?) AS community_posts`,
         [followingId, followingId, followingId]
       ),
     ]);
 
     res.json({
-      success: true,
-      following: statusRows.length > 0,
-      ...statsRows[0],
+      success:         true,
+      following:       statusRows.length > 0,
+      followers:       Number(statsRows[0].followers),
+      following_count: Number(statsRows[0].following_count),
+      community_posts: Number(statsRows[0].community_posts),
     });
   } catch (err) { next(err); }
 };

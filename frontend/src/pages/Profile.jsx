@@ -14,6 +14,7 @@ import API from "../api/api";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
 import TeamIdBadge from "../components/TeamIdBadge";
+import FollowStatsModal from "../components/FollowStatsModal";
 
 export default function Profile() {
   const { theme } = useTheme();
@@ -68,8 +69,8 @@ export default function Profile() {
           const statsRes = await API.get("/users/me/stats");
           if (statsRes.data?.stats) {
             setFollowStats({
-              followers:       Number(statsRes.data.stats.followers)       || 0,
-              following:       Number(statsRes.data.stats.following)       || 0,
+              followers: Number(statsRes.data.stats.followers) || 0,
+              following: Number(statsRes.data.stats.following) || 0,
               community_posts: Number(statsRes.data.stats.community_posts) || 0,
             });
           }

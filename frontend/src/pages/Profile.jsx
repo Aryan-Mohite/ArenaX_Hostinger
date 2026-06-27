@@ -64,6 +64,16 @@ export default function Profile() {
           const td = await API.get("/teams/mine");
           setMyTeams(td.data.teams || []);
         } catch {}
+        try {
+          const statsRes = await API.get("/users/me/stats");
+          if (statsRes.data?.stats) {
+            setFollowStats({
+              followers:       Number(statsRes.data.stats.followers)       || 0,
+              following:       Number(statsRes.data.stats.following)       || 0,
+              community_posts: Number(statsRes.data.stats.community_posts) || 0,
+            });
+          }
+        } catch {}
       } catch {
         setError("Failed to load profile");
       } finally {

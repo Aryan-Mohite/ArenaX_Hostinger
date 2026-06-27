@@ -72,7 +72,7 @@ export default function PlayerProfileModal({ userId, onClose }) {
           setFollowStatus({
             following: statusRes.data.following,
             followers: Number(statusRes.data.followers),
-            following_count: Number(statusRes.data.following),
+            following_count: Number(statusRes.data.following_count),
           });
         } else {
           // For self or unauthenticated: just show counts from profile if available
@@ -106,8 +106,9 @@ export default function PlayerProfileModal({ userId, onClose }) {
           followers: s.followers + 1,
         }));
       }
-    } catch {
-      // silent
+    } catch (err) {
+      const status = err?.response?.status;
+      console.error("[Follow toggle error]", status, err?.response?.data);
     } finally {
       setFollowLoading(false);
     }

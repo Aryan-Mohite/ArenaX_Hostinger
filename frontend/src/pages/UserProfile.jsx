@@ -341,7 +341,7 @@ export default function UserProfile() {
         setFollowStatus({
           following: d.following,
           followers: Number(d.followers),
-          following_count: Number(d.following),
+          following_count: Number(d.following_count),
           community_posts: Number(d.community_posts),
         });
       }
@@ -393,8 +393,10 @@ export default function UserProfile() {
         }));
         showToast("Now following!");
       }
-    } catch {
-      showToast("Action failed, try again");
+    } catch (err) {
+      const status = err?.response?.status;
+      showToast(status === 401 ? "Session expired — please log in again" : "Action failed, try again");
+      console.error("[Follow toggle error]", status, err?.response?.data);
     } finally {
       setFollowLoading(false);
     }

@@ -61,6 +61,11 @@ function Avatar({ user, sizePx = 96 }) {
 
 // ─── Stat Pill ─────────────────────────────────────────────────────────────────
 function StatPill({ icon, label, value, accent = "#ff4655" }) {
+  const { theme } = useTheme();
+  const cardBg =
+    theme === "light"
+      ? "var(--bg-card)"
+      : "linear-gradient(145deg,#1a2340,#131a2e)";
   return (
     <div
       className="flex flex-col items-center gap-1 px-5 py-4 rounded-2xl border border-surface-border flex-1"
@@ -79,6 +84,11 @@ function StatPill({ icon, label, value, accent = "#ff4655" }) {
 
 // ─── Community Post Card ───────────────────────────────────────────────────────
 function CommunityPostCard({ post }) {
+  const { theme } = useTheme();
+  const cardBg =
+    theme === "light"
+      ? "var(--bg-card)"
+      : "linear-gradient(145deg,#1a2340,#131a2e)";
   return (
     <div
       className="rounded-xl border border-surface-border p-4 transition-all hover:border-red/30"
@@ -133,6 +143,11 @@ function CommunityPostCard({ post }) {
 
 // ─── Team Finder Card ─────────────────────────────────────────────────────────
 function TeamFinderCard({ post }) {
+  const { theme } = useTheme();
+  const cardBg =
+    theme === "light"
+      ? "var(--bg-card)"
+      : "linear-gradient(145deg,#1a2340,#131a2e)";
   const accentMap = ["#ff4655", "#3b82f6", "#8b5cf6", "#10b981", "#f59e0b"];
   const accent = accentMap[(post.post_id || 0) % accentMap.length];
   const dl = deadlineBadge(post.deadline);
@@ -210,6 +225,11 @@ function TeamFinderCard({ post }) {
 
 // ─── Game Profile Row ─────────────────────────────────────────────────────────
 function GameProfileRow({ gp }) {
+  const { theme } = useTheme();
+  const cardBg =
+    theme === "light"
+      ? "var(--bg-card)"
+      : "linear-gradient(145deg,#1a2340,#131a2e)";
   return (
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl border border-surface-border"
@@ -252,6 +272,11 @@ function GameProfileRow({ gp }) {
 
 // ─── Skeleton Loader ──────────────────────────────────────────────────────────
 function Skeleton() {
+  const { theme } = useTheme();
+  const cardBg =
+    theme === "light"
+      ? "var(--bg-card)"
+      : "linear-gradient(145deg,#1a2340,#131a2e)";
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
       <div

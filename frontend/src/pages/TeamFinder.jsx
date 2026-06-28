@@ -16,6 +16,8 @@ import TeamIdBadge from "../components/TeamIdBadge";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
+import { useChatContext } from "../context/ChatContext";
+import ChatDrawer from "../components/ChatDrawer";
 
 // FIX (perf): replaced raw authFetch with the shared axios API instance.
 // Axios reuses the underlying TCP connection (keep-alive) across calls,
@@ -117,6 +119,15 @@ function RosterModal({ post, onClose, navigate }) {
   const { theme } = useTheme();
   const ts = themeStyles(theme);
   const isLight = theme === "light";
+  const { unread } = useChatContext();
+
+  const [chatOpen, setChatOpen]   = useState(false);
+  const [activeChat, setActiveChat] = useState(null);
+
+  const openDmChat = (app) => {
+    setActiveChat({ appId: app.application_id, partnerName: app.username });
+    setChatOpen(true);
+  };
 
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,6 +168,7 @@ function RosterModal({ post, onClose, navigate }) {
     rejected: apps.filter((a) => a.status === "rejected"),
   };
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={ts.modalBackdropSm}
@@ -335,6 +347,17 @@ function RosterModal({ post, onClose, navigate }) {
                             {app.status === "draft_accepted" && (
                               <>
                                 <button
+                                  onClick={() => openDmChat(app)}
+                                  className="relative px-3 py-1.5 rounded-lg text-xs font-semibold border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+                                >
+                                  💬 Chat
+                                  {unread.dms[app.application_id] > 0 && (
+                                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red text-white text-[9px] flex items-center justify-center font-bold">
+                                      {unread.dms[app.application_id] > 9 ? "9+" : unread.dms[app.application_id]}
+                                    </span>
+                                  )}
+                                </button>
+                                <button
                                   onClick={() =>
                                     doAction(
                                       app,
@@ -376,6 +399,16 @@ function RosterModal({ post, onClose, navigate }) {
         </div>
       </div>
     </div>
+
+    <ChatDrawer
+      open={chatOpen}
+      onClose={() => setChatOpen(false)}
+      chatType="dm"
+      chatId={activeChat?.appId}
+      title={`Chat with ${activeChat?.partnerName || "Applicant"}`}
+      subtitle="Draft review — pending final decision"
+    />
+    </>
   );
 }
 
@@ -383,6 +416,15 @@ function MyTeamsPanel({ myGames, onPostForTeam, refreshKey, onTeamsLoaded }) {
   const { theme } = useTheme();
   const ts = themeStyles(theme);
   const isLight = theme === "light";
+  const { unread } = useChatContext();
+
+  const [chatOpen, setChatOpen]   = useState(false);
+  const [activeChat, setActiveChat] = useState(null); // { teamId, teamName }
+
+  const openTeamChat = (team) => {
+    setActiveChat({ teamId: team.team_id, teamName: team.team_name });
+    setChatOpen(true);
+  };
 
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
@@ -440,6 +482,7 @@ function MyTeamsPanel({ myGames, onPostForTeam, refreshKey, onTeamsLoaded }) {
     } catch {}
   };
   return (
+    <>
     <div
       className="mb-8 rounded-2xl border border-surface-border overflow-hidden"
       style={ts.cardBg}
@@ -662,6 +705,18 @@ function MyTeamsPanel({ myGames, onPostForTeam, refreshKey, onTeamsLoaded }) {
                       </div>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
+                      {/* 💬 Team Chat button */}
+                      <button
+                        onClick={() => openTeamChat(team)}
+                        className="relative px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
+                      >
+                        💬 Chat
+                        {unread.teams[team.team_id] > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red text-white text-[9px] flex items-center justify-center font-bold">
+                            {unread.teams[team.team_id] > 9 ? "9+" : unread.teams[team.team_id]}
+                          </span>
+                        )}
+                      </button>
                       {team.my_role === "captain" && (
                         <>
                           <button
@@ -687,6 +742,17 @@ function MyTeamsPanel({ myGames, onPostForTeam, refreshKey, onTeamsLoaded }) {
         </div>
       )}
     </div>
+
+    {/* Team Chat Drawer */}
+    <ChatDrawer
+      open={chatOpen}
+      onClose={() => setChatOpen(false)}
+      chatType="team"
+      chatId={activeChat?.teamId}
+      title={activeChat?.teamName || "Team Chat"}
+      subtitle="Team group chat"
+    />
+    </>
   );
 }
 
@@ -694,6 +760,15 @@ function MyDispatchesPanel() {
   const { theme } = useTheme();
   const ts = themeStyles(theme);
   const isLight = theme === "light";
+  const { unread } = useChatContext();
+
+  const [chatOpen, setChatOpen]   = useState(false);
+  const [activeChat, setActiveChat] = useState(null); // { appId, partnerName }
+
+  const openDmChat = (app) => {
+    setActiveChat({ appId: app.application_id, partnerName: app.poster_username });
+    setChatOpen(true);
+  };
 
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -715,6 +790,7 @@ function MyDispatchesPanel() {
   }, [load]);
   if (!loading && apps.length === 0) return null;
   return (
+    <>
     <div
       className="mb-8 rounded-2xl border border-surface-border overflow-hidden"
       style={ts.cardBg}
@@ -812,16 +888,31 @@ function MyDispatchesPanel() {
                         {timeAgo(app.applied_at)}
                       </p>
                     </div>
-                    <span
-                      className="text-xs font-semibold px-3 py-1 rounded-full shrink-0"
-                      style={{
-                        background: cfg.bg,
-                        border: `1px solid ${cfg.border}`,
-                        color: cfg.color,
-                      }}
-                    >
-                      {cfg.label}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {app.status === "draft_accepted" && (
+                        <button
+                          onClick={() => openDmChat(app)}
+                          className="relative px-2.5 py-1 rounded-lg text-xs font-semibold border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors whitespace-nowrap"
+                        >
+                          💬 Chat
+                          {unread.dms[app.application_id] > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red text-white text-[9px] flex items-center justify-center font-bold">
+                              {unread.dms[app.application_id] > 9 ? "9+" : unread.dms[app.application_id]}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                      <span
+                        className="text-xs font-semibold px-3 py-1 rounded-full shrink-0"
+                        style={{
+                          background: cfg.bg,
+                          border: `1px solid ${cfg.border}`,
+                          color: cfg.color,
+                        }}
+                      >
+                        {cfg.label}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
@@ -830,6 +921,17 @@ function MyDispatchesPanel() {
         </div>
       )}
     </div>
+
+    {/* DM Draft Chat Drawer */}
+    <ChatDrawer
+      open={chatOpen}
+      onClose={() => setChatOpen(false)}
+      chatType="dm"
+      chatId={activeChat?.appId}
+      title={`Chat with ${activeChat?.partnerName || "Recruiter"}`}
+      subtitle="Draft review — pending final decision"
+    />
+    </>
   );
 }
 

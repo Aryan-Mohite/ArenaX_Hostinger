@@ -1321,3 +1321,40 @@ CREATE TABLE IF NOT EXISTS user_game_ids (
     CONSTRAINT fk_ugid_user FOREIGN KEY (user_id)
         REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ─── Migration: Chat System ───────────────────────────────────────────────────
+-- Run ONCE in Hostinger phpMyAdmin.
+-- team_messages already exists from v3.3 — only new tables added here.
+
+-- 1. DM messages (1-to-1 draft chat, tied to a team application)
+CREATE TABLE IF NOT EXISTS dm_messages (
+    message_id     INT AUTO_INCREMENT PRIMARY KEY,
+    application_id INT         NOT NULL,
+    sender_id      INT         NOT NULL,
+    content        TEXT        NOT NULL,
+    sent_at        DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_dmm_app    FOREIGN KEY (application_id)
+        REFERENCES team_finder_applications(application_id) ON DELETE CASCADE,
+    CONSTRAINT fk_dmm_sender FOREIGN KEY (sender_id)
+        REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_dm_app_id  ON dm_messages(application_id, message_id);
+CREATE INDEX idx_dm_sender  ON dm_messages(sender_id);
+
+-- 2. Read watermarks — tracks the last read message_id per user per chat
+--    chat_type: 'team' → ref_id = team_id
+--    chat_type: 'dm'   → ref_id = application_id
+CREATE TABLE IF NOT EXISTS chat_read_status (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    user_id          INT             NOT NULL,
+    chat_type        ENUM('team','dm') NOT NULL,
+    ref_id           INT             NOT NULL,
+    last_message_id  INT             NOT NULL DEFAULT 0,
+    updated_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                     ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_crs (user_id, chat_type, ref_id),
+    CONSTRAINT fk_crs_user FOREIGN KEY (user_id)
+        REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

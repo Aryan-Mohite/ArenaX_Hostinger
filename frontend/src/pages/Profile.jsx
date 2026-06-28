@@ -15,54 +15,30 @@ import { useAuth } from "../context/AuthContext";
 import API from "../api/api";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
+import { useChatContext } from "../context/ChatContext";
+import ChatDrawer from "../components/ChatDrawer";
 import TeamIdBadge from "../components/TeamIdBadge";
 import FollowStatsModal from "../components/FollowStatsModal";
 
 // ─── Platform config ──────────────────────────────────────────────────────────
 export const GAME_PLATFORMS = [
-  {
-    key: "steam",
-    label: "Steam",
-    icon: "🖥️",
-    placeholder: "76561198XXXXXXXXX",
-  },
-  { key: "riot", label: "Riot ID", icon: "⚔️", placeholder: "Username#TAG" },
-  { key: "epic", label: "Epic Games", icon: "🎯", placeholder: "EpicUsername" },
-  {
-    key: "battlenet",
-    label: "Battle.net",
-    icon: "🔵",
-    placeholder: "Username#1234",
-  },
-  { key: "psn", label: "PSN", icon: "🎮", placeholder: "PSN_Username" },
-  {
-    key: "xbox",
-    label: "Xbox Gamertag",
-    icon: "🟢",
-    placeholder: "XboxGamertag",
-  },
-  {
-    key: "ubisoft",
-    label: "Ubisoft Connect",
-    icon: "🟠",
-    placeholder: "UbisoftUsername",
-  },
-  { key: "ea", label: "EA / Origin", icon: "🟡", placeholder: "EA_Username" },
-  { key: "faceit", label: "Faceit", icon: "🔶", placeholder: "FaceitUsername" },
-  { key: "bgmi", label: "BGMI / PUBG", icon: "🪖", placeholder: "Player ID" },
+  { key: "steam",     label: "Steam",           icon: "🖥️",  placeholder: "76561198XXXXXXXXX" },
+  { key: "riot",      label: "Riot ID",         icon: "⚔️",  placeholder: "Username#TAG" },
+  { key: "epic",      label: "Epic Games",      icon: "🎯",  placeholder: "EpicUsername" },
+  { key: "battlenet", label: "Battle.net",      icon: "🔵",  placeholder: "Username#1234" },
+  { key: "psn",       label: "PSN",             icon: "🎮",  placeholder: "PSN_Username" },
+  { key: "xbox",      label: "Xbox Gamertag",   icon: "🟢",  placeholder: "XboxGamertag" },
+  { key: "ubisoft",   label: "Ubisoft Connect", icon: "🟠",  placeholder: "UbisoftUsername" },
+  { key: "ea",        label: "EA / Origin",     icon: "🟡",  placeholder: "EA_Username" },
+  { key: "faceit",    label: "Faceit",          icon: "🔶",  placeholder: "FaceitUsername" },
+  { key: "bgmi",      label: "BGMI / PUBG",     icon: "🪖",  placeholder: "Player ID" },
 ];
 
 // ─── GameIdsTab component ─────────────────────────────────────────────────────
-function GameIdsTab({
-  gameIds,
-  gameIdsForm,
-  setGameIdsForm,
-  savingGameIds,
-  onSave,
-}) {
-  const hasAny = GAME_PLATFORMS.some((p) => gameIds[p.key]);
+function GameIdsTab({ gameIds, gameIdsForm, setGameIdsForm, savingGameIds, onSave }) {
+  const hasAny = GAME_PLATFORMS.some(p => gameIds[p.key]);
   const isDirty = GAME_PLATFORMS.some(
-    (p) => (gameIdsForm[p.key] || "") !== (gameIds[p.key] || ""),
+    p => (gameIdsForm[p.key] || "") !== (gameIds[p.key] || "")
   );
 
   return (
@@ -71,17 +47,14 @@ function GameIdsTab({
       <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-start gap-3">
         <span className="text-blue-400 text-lg shrink-0 mt-0.5">💡</span>
         <p className="text-sm text-gray-400 leading-relaxed">
-          Add your in-game IDs so teammates can find and add you after being
-          matched. Only logged-in players can see this section on other
-          profiles.
+          Add your in-game IDs so teammates can find and add you after being matched.
+          Only logged-in players can see this section on other profiles.
         </p>
       </div>
 
       {/* Platform grid */}
       <div className="card">
-        <h3 className="font-display font-bold text-lg text-white mb-4">
-          Your Game IDs
-        </h3>
+        <h3 className="font-display font-bold text-lg text-white mb-4">Your Game IDs</h3>
         <div className="grid sm:grid-cols-2 gap-3">
           {GAME_PLATFORMS.map(({ key, label, icon, placeholder }) => (
             <div key={key}>
@@ -99,18 +72,14 @@ function GameIdsTab({
                 className="input text-sm"
                 placeholder={placeholder}
                 value={gameIdsForm[key] || ""}
-                onChange={(e) =>
-                  setGameIdsForm((f) => ({ ...f, [key]: e.target.value }))
-                }
+                onChange={e => setGameIdsForm(f => ({ ...f, [key]: e.target.value }))}
               />
             </div>
           ))}
         </div>
 
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-surface-border">
-          <p className="text-xs text-gray-600">
-            Clear a field and save to remove that ID
-          </p>
+          <p className="text-xs text-gray-600">Clear a field and save to remove that ID</p>
           <button
             onClick={onSave}
             disabled={savingGameIds || !isDirty}
@@ -137,7 +106,7 @@ function GameIdsTab({
 // ─── GameIdsDisplay — shared read-only display ────────────────────────────────
 export function GameIdsDisplay({ gameIds }) {
   const [copied, setCopied] = useState(null);
-  const entries = GAME_PLATFORMS.filter((p) => gameIds?.[p.key]);
+  const entries = GAME_PLATFORMS.filter(p => gameIds?.[p.key]);
   if (entries.length === 0) return null;
 
   const copy = (key, val) => {
@@ -158,9 +127,7 @@ export function GameIdsDisplay({ gameIds }) {
           <span className="text-lg shrink-0">{icon}</span>
           <div className="min-w-0 flex-1">
             <p className="text-xs text-gray-500 leading-none mb-0.5">{label}</p>
-            <p className="text-sm font-semibold text-white truncate">
-              {gameIds[key]}
-            </p>
+            <p className="text-sm font-semibold text-white truncate">{gameIds[key]}</p>
           </div>
           <span className="text-xs text-gray-600 group-hover:text-gray-400 transition-colors shrink-0">
             {copied === key ? "✓ Copied!" : "copy"}
@@ -198,6 +165,9 @@ export default function Profile() {
   const [gameIds, setGameIds] = useState({});
   const [gameIdsForm, setGameIdsForm] = useState({});
   const [savingGameIds, setSavingGameIds] = useState(false);
+  const [teamChatOpen, setTeamChatOpen] = useState(false);
+  const [activeChatTeam, setActiveChatTeam] = useState(null);
+  const { unread } = useChatContext();
 
   const showToast = (msg) => {
     setToast(msg);
@@ -786,6 +756,7 @@ export default function Profile() {
       )}
 
       {activeTab === "teams" && (
+        <>
         <div className="space-y-3 animate-fade-in">
           {myTeams.length === 0 ? (
             <div className="card text-center py-10 text-gray-500">
@@ -876,6 +847,17 @@ export default function Profile() {
                   >
                     {team.my_role === "captain" ? "⭐ Captain" : "Member"}
                   </span>
+                  <button
+                    onClick={() => { setActiveChatTeam(team); setTeamChatOpen(true); }}
+                    className="relative text-xs px-2.5 py-1 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                  >
+                    💬 Chat
+                    {unread.teams[team.team_id] > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red text-white text-[9px] flex items-center justify-center font-bold">
+                        {unread.teams[team.team_id] > 9 ? "9+" : unread.teams[team.team_id]}
+                      </span>
+                    )}
+                  </button>
                   <a
                     href="/teamfinder"
                     className="text-xs px-2.5 py-1 rounded-lg border border-surface-border text-gray-500 hover:text-white hover:border-red/30 transition-colors"
@@ -887,6 +869,15 @@ export default function Profile() {
             ))
           )}
         </div>
+        <ChatDrawer
+          open={teamChatOpen}
+          onClose={() => setTeamChatOpen(false)}
+          chatType="team"
+          chatId={activeChatTeam?.team_id}
+          title={activeChatTeam?.team_name || "Team Chat"}
+          subtitle="Team group chat"
+        />
+        </>
       )}
     </div>
   );

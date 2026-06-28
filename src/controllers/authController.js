@@ -176,7 +176,7 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     const [rows] = await pool.query(
-      "SELECT user_id, username, email, password_hash, status, email_verified FROM users WHERE email = ?",
+      "SELECT user_id, username, email, password_hash, status, email_verified, profile_picture FROM users WHERE email = ?",
       [email]
     );
 
@@ -214,7 +214,7 @@ export const login = async (req, res, next) => {
       success: true,
       message: "Login successful",
       token,
-      user: { id: user.user_id, username: user.username, email: user.email, isAdmin },
+      user: { id: user.user_id, username: user.username, email: user.email, profile_picture: user.profile_picture ?? null, isAdmin },
     });
   } catch (err) { next(err); }
 };

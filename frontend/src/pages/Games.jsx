@@ -36,12 +36,14 @@ const PLATFORM_FILTERS = [
 
 // ─── Skeleton card ────────────────────────────────────────────────────────────
 function GameSkeleton() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   return (
     <div
       className="rounded-xl overflow-hidden animate-pulse"
       style={{
-        background: "#1a2340",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: isLight ? "var(--bg-card)" : "#1a2340",
+        border: `1px solid ${isLight ? "var(--border-color)" : "rgba(255,255,255,0.06)"}`,
       }}
     >
       <div className="h-44 bg-surface-border/30" />
@@ -406,8 +408,8 @@ export default function Games() {
                       key={i}
                       className="w-36 flex-shrink-0 rounded-xl overflow-hidden animate-pulse"
                       style={{
-                        background: "#1a2340",
-                        border: "1px solid rgba(255,255,255,0.06)",
+                        background: isLight ? "var(--bg-card)" : "#1a2340",
+                        border: `1px solid ${isLight ? "var(--border-color)" : "rgba(255,255,255,0.06)"}`,
                       }}
                     >
                       <div className="h-40 bg-surface-border/30" />

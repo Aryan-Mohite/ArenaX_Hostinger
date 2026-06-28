@@ -1305,3 +1305,19 @@ CREATE TABLE IF NOT EXISTS team_messages (
 
 CREATE INDEX idx_team_messages_team   ON team_messages(team_id, sent_at);
 CREATE INDEX idx_team_messages_sender ON team_messages(sender_id);
+
+-- ─── Migration: Add user_game_ids table ──────────────────────────────────────
+-- Run this once against your ArenaX database on Hostinger
+-- Adds per-platform in-game IDs that players can display on their profile
+
+CREATE TABLE IF NOT EXISTS user_game_ids (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT             NOT NULL,
+    platform        VARCHAR(50)     NOT NULL,          -- e.g. 'steam', 'riot', 'epic'
+    game_id_value   VARCHAR(120)    NOT NULL,          -- the actual in-game ID / tag
+    updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                    ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_user_platform (user_id, platform),
+    CONSTRAINT fk_ugid_user FOREIGN KEY (user_id)
+        REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

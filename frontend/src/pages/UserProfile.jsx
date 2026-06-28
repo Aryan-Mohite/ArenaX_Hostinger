@@ -8,6 +8,8 @@ import {
   getFollowStatus,
 } from "../services/userService";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { themeStyles } from "../utils/themeStyles";
 import TeamIdBadge from "../components/TeamIdBadge";
 import { GameIdsDisplay } from "./Profile";
 
@@ -62,7 +64,7 @@ function StatPill({ icon, label, value, accent = "#ff4655" }) {
   return (
     <div
       className="flex flex-col items-center gap-1 px-5 py-4 rounded-2xl border border-surface-border flex-1"
-      style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+      style={{ background: cardBg }}
     >
       <span className="text-2xl">{icon}</span>
       <span className="text-xl font-bold text-white tabular-nums">
@@ -80,7 +82,7 @@ function CommunityPostCard({ post }) {
   return (
     <div
       className="rounded-xl border border-surface-border p-4 transition-all hover:border-red/30"
-      style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+      style={{ background: cardBg }}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0">
@@ -139,7 +141,7 @@ function TeamFinderCard({ post }) {
   return (
     <div
       className="rounded-xl border border-surface-border overflow-hidden transition-all hover:border-red/30"
-      style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+      style={{ background: cardBg }}
     >
       <div
         className="h-0.5"
@@ -211,7 +213,7 @@ function GameProfileRow({ gp }) {
   return (
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl border border-surface-border"
-      style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+      style={{ background: cardBg }}
     >
       {gp.icon ? (
         <img
@@ -254,7 +256,7 @@ function Skeleton() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
       <div
         className="rounded-2xl border border-surface-border p-6 mb-6"
-        style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+        style={{ background: cardBg }}
       >
         <div className="flex gap-5">
           <div className="w-24 h-24 rounded-full bg-white/5 shrink-0" />
@@ -284,6 +286,12 @@ export default function UserProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user: currentUser } = useAuth();
+  const { theme } = useTheme();
+  const ts = themeStyles(theme);
+  const isLight = theme === "light";
+  const cardBg = isLight
+    ? "var(--bg-card)"
+    : "linear-gradient(145deg,#1a2340,#131a2e)";
 
   const [profile, setProfile] = useState(null);
   const [activity, setActivity] = useState({
@@ -485,7 +493,11 @@ export default function UserProfile() {
       {/* ── Profile Header Card ── */}
       <div
         className="rounded-2xl border border-surface-border overflow-hidden mb-6 relative"
-        style={{ background: "linear-gradient(145deg,#1a2340,#0f172a)" }}
+        style={{
+          background: isLight
+            ? "var(--bg-card)"
+            : "linear-gradient(145deg,#1a2340,#0f172a)",
+        }}
       >
         {/* Hero gradient strip */}
         <div
@@ -516,7 +528,10 @@ export default function UserProfile() {
                 display: "inline-block",
               }}
             >
-              <div className="p-0.5 rounded-full bg-[#0f172a]">
+              <div
+                className="p-0.5 rounded-full"
+                style={{ background: isLight ? "var(--bg-card)" : "#0f172a" }}
+              >
                 <Avatar user={profile} sizePx={80} />
               </div>
             </div>
@@ -662,7 +677,7 @@ export default function UserProfile() {
           {activity.game_profiles.length === 0 ? (
             <div
               className="rounded-2xl border border-surface-border flex flex-col items-center justify-center py-16 text-center"
-              style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+              style={{ background: cardBg }}
             >
               <div className="text-5xl mb-3 opacity-20">🎮</div>
               <p className="text-gray-400 font-medium">No service record yet</p>
@@ -684,7 +699,7 @@ export default function UserProfile() {
           {activity.community_posts.length === 0 ? (
             <div
               className="rounded-2xl border border-surface-border flex flex-col items-center justify-center py-16 text-center"
-              style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+              style={{ background: cardBg }}
             >
               <div className="text-5xl mb-3 opacity-20">💬</div>
               <p className="text-gray-400 font-medium">No comms yet</p>
@@ -708,7 +723,7 @@ export default function UserProfile() {
           {activity.teams.length === 0 ? (
             <div
               className="rounded-2xl border border-surface-border flex flex-col items-center justify-center py-16 text-center"
-              style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+              style={{ background: cardBg }}
             >
               <div className="text-5xl mb-3 opacity-20">🛡️</div>
               <p className="text-gray-400 font-medium">Not on any teams yet</p>
@@ -719,7 +734,7 @@ export default function UserProfile() {
                 key={team.team_id || i}
                 className="rounded-xl border border-surface-border px-4 py-3 flex items-center gap-3 hover:border-red/30 transition-all"
                 style={{
-                  background: "linear-gradient(145deg,#1a2340,#131a2e)",
+                  background: cardBg,
                 }}
               >
                 <div className="w-10 h-10 rounded-xl bg-red/20 border border-red/30 flex items-center justify-center text-lg shrink-0">
@@ -783,7 +798,7 @@ export default function UserProfile() {
           {activity.team_finder_posts.length === 0 ? (
             <div
               className="rounded-2xl border border-surface-border flex flex-col items-center justify-center py-16 text-center"
-              style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+              style={{ background: cardBg }}
             >
               <div className="text-5xl mb-3 opacity-20">⚔️</div>
               <p className="text-gray-400 font-medium">No recruitments yet</p>
@@ -843,7 +858,7 @@ export default function UserProfile() {
           </div>
           <div
             className="rounded-xl border border-surface-border p-5"
-            style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+            style={{ background: cardBg }}
           >
             <h3 className="font-display font-bold text-base text-white mb-4">
               {profile?.username}'s Game IDs

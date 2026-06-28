@@ -1,5 +1,30 @@
 import pool from "../config/db.js";
 
+// ─── Retention policy ─────────────────────────────────────────────────────────
+// Change this to 15 if you prefer a 15-day window.
+// Keep in sync with RETENTION_DAYS in frontend/src/components/ChatDrawer.jsx
+const RETENTION_DAYS = 7;
+
+/**
+ * Deletes messages older than RETENTION_DAYS from both chat tables.
+ * Called fire-and-forget with a 10 % probability on every message fetch
+ * so no cron job is needed. Errors are swallowed — this is best-effort cleanup.
+ */
+async function pruneOldMessages() {
+  try {
+    await pool.query(
+      `DELETE FROM team_messages WHERE sent_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
+      [RETENTION_DAYS]
+    );
+    await pool.query(
+      `DELETE FROM dm_messages WHERE sent_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
+      [RETENTION_DAYS]
+    );
+  } catch (_) {
+    // Silent — pruning is non-critical
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Ensure the requesting user is an active member of a team. */
@@ -42,6 +67,9 @@ export const getTeamMessages = async (req, res, next) => {
 
     if (!(await assertTeamMember(req.user.id, teamId)))
       return res.status(403).json({ success: false, message: "Not a team member" });
+
+    // Prune old messages ~10 % of the time — no cron needed
+    if (Math.random() < 0.1) pruneOldMessages();
 
     const [rows] = await pool.query(
       `SELECT tm.team_message_id AS message_id,
@@ -114,6 +142,9 @@ export const getDmMessages = async (req, res, next) => {
 
     const access = await getDmAccess(req.user.id, appId);
     if (!access) return res.status(403).json({ success: false, message: "Not authorised for this chat" });
+
+    // Prune old messages ~10 % of the time — no cron needed
+    if (Math.random() < 0.1) pruneOldMessages();
 
     const [rows] = await pool.query(
       `SELECT dm.message_id, dm.sender_id,

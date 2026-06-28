@@ -6,6 +6,8 @@ import {
   updateProfile,
   getFollowers,
   getFollowing,
+  getMyGameIds,
+  updateGameIds,
 } from "../services/userService";
 import { getMyGames } from "../services/gameService";
 import { PageLoader, ErrorMessage, StatCard } from "../components/UI";
@@ -15,6 +17,159 @@ import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
 import TeamIdBadge from "../components/TeamIdBadge";
 import FollowStatsModal from "../components/FollowStatsModal";
+
+// ─── Platform config ──────────────────────────────────────────────────────────
+export const GAME_PLATFORMS = [
+  {
+    key: "steam",
+    label: "Steam",
+    icon: "🖥️",
+    placeholder: "76561198XXXXXXXXX",
+  },
+  { key: "riot", label: "Riot ID", icon: "⚔️", placeholder: "Username#TAG" },
+  { key: "epic", label: "Epic Games", icon: "🎯", placeholder: "EpicUsername" },
+  {
+    key: "battlenet",
+    label: "Battle.net",
+    icon: "🔵",
+    placeholder: "Username#1234",
+  },
+  { key: "psn", label: "PSN", icon: "🎮", placeholder: "PSN_Username" },
+  {
+    key: "xbox",
+    label: "Xbox Gamertag",
+    icon: "🟢",
+    placeholder: "XboxGamertag",
+  },
+  {
+    key: "ubisoft",
+    label: "Ubisoft Connect",
+    icon: "🟠",
+    placeholder: "UbisoftUsername",
+  },
+  { key: "ea", label: "EA / Origin", icon: "🟡", placeholder: "EA_Username" },
+  { key: "faceit", label: "Faceit", icon: "🔶", placeholder: "FaceitUsername" },
+  { key: "bgmi", label: "BGMI / PUBG", icon: "🪖", placeholder: "Player ID" },
+];
+
+// ─── GameIdsTab component ─────────────────────────────────────────────────────
+function GameIdsTab({
+  gameIds,
+  gameIdsForm,
+  setGameIdsForm,
+  savingGameIds,
+  onSave,
+}) {
+  const hasAny = GAME_PLATFORMS.some((p) => gameIds[p.key]);
+  const isDirty = GAME_PLATFORMS.some(
+    (p) => (gameIdsForm[p.key] || "") !== (gameIds[p.key] || ""),
+  );
+
+  return (
+    <div className="animate-fade-in space-y-4">
+      {/* Info banner */}
+      <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-start gap-3">
+        <span className="text-blue-400 text-lg shrink-0 mt-0.5">💡</span>
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Add your in-game IDs so teammates can find and add you after being
+          matched. Only logged-in players can see this section on other
+          profiles.
+        </p>
+      </div>
+
+      {/* Platform grid */}
+      <div className="card">
+        <h3 className="font-display font-bold text-lg text-white mb-4">
+          Your Game IDs
+        </h3>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {GAME_PLATFORMS.map(({ key, label, icon, placeholder }) => (
+            <div key={key}>
+              <label className="flex items-center gap-2 text-sm text-gray-400 mb-1.5">
+                <span>{icon}</span>
+                <span>{label}</span>
+                {gameIds[key] && (
+                  <span className="ml-auto text-xs text-green-400 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+                    Set
+                  </span>
+                )}
+              </label>
+              <input
+                className="input text-sm"
+                placeholder={placeholder}
+                value={gameIdsForm[key] || ""}
+                onChange={(e) =>
+                  setGameIdsForm((f) => ({ ...f, [key]: e.target.value }))
+                }
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between mt-5 pt-4 border-t border-surface-border">
+          <p className="text-xs text-gray-600">
+            Clear a field and save to remove that ID
+          </p>
+          <button
+            onClick={onSave}
+            disabled={savingGameIds || !isDirty}
+            className="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {savingGameIds ? "Saving..." : "Save IDs"}
+          </button>
+        </div>
+      </div>
+
+      {/* Preview — what others will see */}
+      {hasAny && (
+        <div className="card">
+          <h3 className="font-display font-bold text-base text-white mb-3">
+            👁️ Preview — what teammates see
+          </h3>
+          <GameIdsDisplay gameIds={gameIds} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── GameIdsDisplay — shared read-only display ────────────────────────────────
+export function GameIdsDisplay({ gameIds }) {
+  const [copied, setCopied] = useState(null);
+  const entries = GAME_PLATFORMS.filter((p) => gameIds?.[p.key]);
+  if (entries.length === 0) return null;
+
+  const copy = (key, val) => {
+    navigator.clipboard.writeText(val).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1500);
+  };
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-2">
+      {entries.map(({ key, label, icon }) => (
+        <button
+          key={key}
+          onClick={() => copy(key, gameIds[key])}
+          title="Click to copy"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface-border bg-navy/40 hover:border-red/30 hover:bg-red/5 transition-all group text-left w-full"
+        >
+          <span className="text-lg shrink-0">{icon}</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-gray-500 leading-none mb-0.5">{label}</p>
+            <p className="text-sm font-semibold text-white truncate">
+              {gameIds[key]}
+            </p>
+          </div>
+          <span className="text-xs text-gray-600 group-hover:text-gray-400 transition-colors shrink-0">
+            {copied === key ? "✓ Copied!" : "copy"}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function Profile() {
   const { theme } = useTheme();
@@ -40,6 +195,9 @@ export default function Profile() {
   const [showShare, setShowShare] = useState(false);
   const [followModal, setFollowModal] = useState(null);
   const [myTeams, setMyTeams] = useState([]);
+  const [gameIds, setGameIds] = useState({});
+  const [gameIdsForm, setGameIdsForm] = useState({});
+  const [savingGameIds, setSavingGameIds] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -64,6 +222,12 @@ export default function Profile() {
         try {
           const td = await API.get("/teams/mine");
           setMyTeams(td.data.teams || []);
+        } catch {}
+        try {
+          const gidsRes = await getMyGameIds();
+          const ids = gidsRes.data.game_ids || {};
+          setGameIds(ids);
+          setGameIdsForm(ids);
         } catch {}
         try {
           const statsRes = await API.get("/users/me/stats");
@@ -146,6 +310,7 @@ export default function Profile() {
   const TABS = [
     { id: "overview", label: "Service Record" },
     { id: "games", label: "Arsenal" },
+    { id: "gameids", label: "🎮 Game IDs" },
     {
       id: "teams",
       label: `🛡️ Teams${myTeams.length ? ` (${myTeams.length})` : ""}`,
@@ -595,6 +760,29 @@ export default function Profile() {
             ))
           )}
         </div>
+      )}
+
+      {activeTab === "gameids" && (
+        <GameIdsTab
+          gameIds={gameIds}
+          gameIdsForm={gameIdsForm}
+          setGameIdsForm={setGameIdsForm}
+          savingGameIds={savingGameIds}
+          onSave={async () => {
+            setSavingGameIds(true);
+            try {
+              const res = await updateGameIds(gameIdsForm);
+              const updated = res.data.game_ids || {};
+              setGameIds(updated);
+              setGameIdsForm(updated);
+              showToast("Game IDs saved!");
+            } catch {
+              showToast("Failed to save Game IDs");
+            } finally {
+              setSavingGameIds(false);
+            }
+          }}
+        />
       )}
 
       {activeTab === "teams" && (

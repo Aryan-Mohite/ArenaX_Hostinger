@@ -11,6 +11,8 @@ import {
   getFollowers,
   getFollowing,
   getUserActivity,
+  getMyGameIds,
+  updateGameIds,
 } from "../controllers/userController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { validateIdParam, validateUpdateProfile } from "../utils/validators.js";
@@ -23,6 +25,12 @@ router.get("/", authMiddleware, searchUsers);
 
 // GET /api/users/me/stats — followers/following/post counts for self
 router.get("/me/stats", authMiddleware, getMyFollowStats);
+
+// GET /api/users/me/game-ids — get own in-game IDs
+router.get("/me/game-ids", authMiddleware, getMyGameIds);
+
+// PUT /api/users/me/game-ids — update in-game IDs
+router.put("/me/game-ids", authMiddleware, updateGameIds);
 
 // GET /api/users/:id  — public profile
 router.get("/:id", validateIdParam, validate, getUserProfile);

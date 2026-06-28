@@ -9,6 +9,7 @@ import {
 } from "../services/userService";
 import { useAuth } from "../context/AuthContext";
 import TeamIdBadge from "../components/TeamIdBadge";
+import { GameIdsDisplay } from "./Profile";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const timeAgo = (d) => {
@@ -395,7 +396,11 @@ export default function UserProfile() {
       }
     } catch (err) {
       const status = err?.response?.status;
-      showToast(status === 401 ? "Session expired — please log in again" : "Action failed, try again");
+      showToast(
+        status === 401
+          ? "Session expired — please log in again"
+          : "Action failed, try again",
+      );
       console.error("[Follow toggle error]", status, err?.response?.data);
     } finally {
       setFollowLoading(false);
@@ -443,6 +448,18 @@ export default function UserProfile() {
       count: activity.team_finder_posts.length,
     },
     { id: "teams", label: "🛡️ Teams", count: activity.teams.length },
+    ...(isAuthenticated &&
+    !isSelf &&
+    profile?.game_ids &&
+    Object.keys(profile.game_ids).length > 0
+      ? [
+          {
+            id: "gameids",
+            label: "🆔 Game IDs",
+            count: Object.keys(profile.game_ids).length,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -811,6 +828,28 @@ export default function UserProfile() {
               )}
             </>
           )}
+        </div>
+      )}
+
+      {/* ── Tab: Game IDs (only for logged-in users viewing someone else) ── */}
+      {activeTab === "gameids" && isAuthenticated && !isSelf && (
+        <div className="animate-fade-in space-y-4">
+          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-start gap-3">
+            <span className="text-blue-400 text-lg shrink-0 mt-0.5">🔒</span>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              In-game IDs are only visible to logged-in players. Click any ID to
+              copy it to your clipboard.
+            </p>
+          </div>
+          <div
+            className="rounded-xl border border-surface-border p-5"
+            style={{ background: "linear-gradient(145deg,#1a2340,#131a2e)" }}
+          >
+            <h3 className="font-display font-bold text-base text-white mb-4">
+              {profile?.username}'s Game IDs
+            </h3>
+            <GameIdsDisplay gameIds={profile?.game_ids || {}} />
+          </div>
         </div>
       )}
     </div>

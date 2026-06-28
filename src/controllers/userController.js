@@ -32,9 +32,16 @@ export const getUserProfile = async (req, res, next) => {
       [id]
     );
 
+    const [gameIdRows] = await pool.query(
+      `SELECT platform, game_id_value FROM user_game_ids WHERE user_id = ?`,
+      [id]
+    );
+    const game_ids = {};
+    gameIdRows.forEach(r => { game_ids[r.platform] = r.game_id_value; });
+
     res.json({
       success: true,
-      profile: { ...userRows[0], game_profiles: gameProfiles, achievements },
+      profile: { ...userRows[0], game_profiles: gameProfiles, achievements, game_ids },
     });
   } catch (err) { next(err); }
 };
@@ -329,5 +336,72 @@ export const getUserActivity = async (req, res, next) => {
       game_profiles:     gameProfiles,
       teams,
     });
+  } catch (err) { next(err); }
+};
+// ─── GET OWN GAME IDs ─────────────────────────────────────────────────────────
+export const getMyGameIds = async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT platform, game_id_value FROM user_game_ids WHERE user_id = ?`,
+      [req.user.id]
+    );
+    // Convert to key-value object for easy frontend consumption
+    const ids = {};
+    rows.forEach(r => { ids[r.platform] = r.game_id_value; });
+    res.json({ success: true, game_ids: ids });
+  } catch (err) { next(err); }
+};
+
+// ─── UPDATE GAME IDs (upsert) ─────────────────────────────────────────────────
+// Body: { steam: "id", riot: "tag#NA1", epic: "username", ... }
+// Send empty string "" to clear a platform ID
+export const updateGameIds = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const ALLOWED_PLATFORMS = [
+      "steam", "riot", "epic", "battlenet", "psn",
+      "xbox", "ubisoft", "ea", "faceit", "bgmi"
+    ];
+
+    const updates = [];
+    const deletes = [];
+
+    for (const platform of ALLOWED_PLATFORMS) {
+      if (!(platform in req.body)) continue;
+      const val = String(req.body[platform] || "").trim().slice(0, 120);
+      if (val === "") {
+        deletes.push(platform);
+      } else {
+        updates.push([userId, platform, val]);
+      }
+    }
+
+    // Upsert non-empty values
+    if (updates.length > 0) {
+      await pool.query(
+        `INSERT INTO user_game_ids (user_id, platform, game_id_value)
+         VALUES ?
+         ON DUPLICATE KEY UPDATE game_id_value = VALUES(game_id_value)`,
+        [updates]
+      );
+    }
+
+    // Delete cleared values
+    if (deletes.length > 0) {
+      await pool.query(
+        `DELETE FROM user_game_ids WHERE user_id = ? AND platform IN (?)`,
+        [userId, deletes]
+      );
+    }
+
+    // Return fresh data
+    const [rows] = await pool.query(
+      `SELECT platform, game_id_value FROM user_game_ids WHERE user_id = ?`,
+      [userId]
+    );
+    const ids = {};
+    rows.forEach(r => { ids[r.platform] = r.game_id_value; });
+
+    res.json({ success: true, game_ids: ids });
   } catch (err) { next(err); }
 };

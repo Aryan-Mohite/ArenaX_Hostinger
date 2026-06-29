@@ -19,21 +19,8 @@ const PARTICLES = [
 
 export default function NotFound() {
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black flex items-end justify-center">
-      {/* Background artwork — slow Ken Burns zoom */}
-      <div className="absolute inset-0 nf-kenburns">
-        <img
-          src={dragonBg}
-          alt="Page not found"
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      {/* Pulsing glow over the dragon's eyes */}
-      <span className="nf-eye-glow" style={{ left: "46%", top: "17%" }} />
-      <span className="nf-eye-glow" style={{ left: "54%", top: "17%", animationDelay: "0.4s" }} />
-
-      {/* Falling red petals / embers */}
+    <div className="relative min-h-screen w-full bg-black flex flex-col items-center justify-center overflow-hidden py-8">
+      {/* Falling red petals / embers — full viewport, behind content text but above bg */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {PARTICLES.map((p, i) => (
           <span
@@ -50,10 +37,22 @@ export default function NotFound() {
         ))}
       </div>
 
-      {/* Return button */}
+      {/* Image block — never cropped, never upscaled past its native size */}
+      <div className="relative z-10 w-full nf-kenburns" style={{ maxWidth: "1536px" }}>
+        <img
+          src={dragonBg}
+          alt="Page not found"
+          className="w-full h-auto block"
+        />
+        {/* Pulsing glow over the dragon's eyes, positioned relative to the image itself */}
+        <span className="nf-eye-glow" style={{ left: "46%", top: "17%" }} />
+        <span className="nf-eye-glow" style={{ left: "54%", top: "17%", animationDelay: "0.4s" }} />
+      </div>
+
+      {/* Return button — sits below the artwork, never overlapping it */}
       <Link
         to="/"
-        className="relative z-10 mb-24 sm:mb-28 inline-flex items-center gap-2 px-8 py-3 bg-black/60 border border-red/70 text-white font-display font-semibold tracking-wide uppercase rounded-sm hover:bg-red hover:border-red transition-all duration-300 shadow-red-glow"
+        className="relative z-10 mt-6 sm:mt-8 inline-flex items-center gap-2 px-8 py-3 bg-black/60 border border-red/70 text-white font-display font-semibold tracking-wide uppercase rounded-sm hover:bg-red hover:border-red transition-all duration-300 shadow-red-glow"
       >
         Return to Arena
         <span aria-hidden="true">›</span>
@@ -66,13 +65,13 @@ export default function NotFound() {
         }
         @keyframes nfZoom {
           0%   { transform: scale(1); }
-          100% { transform: scale(1.08); }
+          100% { transform: scale(1.05); }
         }
 
         .nf-eye-glow {
           position: absolute;
-          width: 14px;
-          height: 14px;
+          width: 1.2%;
+          height: 1.8%;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(255,40,55,0.95) 0%, rgba(255,40,55,0.5) 40%, transparent 75%);
           box-shadow: 0 0 12px 4px rgba(255,40,55,0.6);

@@ -38,15 +38,13 @@ export default function NotFound() {
       </div>
 
       {/* Image block — never cropped, never upscaled past its native size */}
-      <div className="relative z-10 w-full nf-kenburns" style={{ maxWidth: "1536px" }}>
+      <div className="relative z-10 w-full nf-kenburns" style={{ maxWidth: "1300px" }}>
         <img
           src={dragonBg}
           alt="Page not found"
           className="w-full h-auto block"
         />
         {/* Pulsing glow over the dragon's eyes, positioned relative to the image itself */}
-        <span className="nf-eye-glow" style={{ left: "46%", top: "17%" }} />
-        <span className="nf-eye-glow" style={{ left: "54%", top: "17%", animationDelay: "0.4s" }} />
       </div>
 
       {/* Return button — sits below the artwork, never overlapping it */}

@@ -30,8 +30,8 @@ export default function NotFound() {
       </div>
 
       {/* Pulsing glow over the dragon's eyes */}
-      <span className="nf-eye-glow" style={{ left: "47%", top: "21%" }} />
-      <span className="nf-eye-glow" style={{ left: "53.5%", top: "21%", animationDelay: "0.4s" }} />
+      <span className="nf-eye-glow" style={{ left: "46%", top: "17%" }} />
+      <span className="nf-eye-glow" style={{ left: "54%", top: "17%", animationDelay: "0.4s" }} />
 
       {/* Falling red petals / embers */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

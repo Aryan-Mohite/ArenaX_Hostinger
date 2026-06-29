@@ -22,6 +22,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminArchiveDashboard from "./pages/admin/AdminArchiveDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminRoute from "./components/AdminRoute";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
                 </AdminRoute>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />

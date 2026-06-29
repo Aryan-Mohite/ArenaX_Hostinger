@@ -1,6 +1,8 @@
 import pool from "../config/db.js";
 import { sanitizeFields } from "../utils/sanitize.js";
 
+const MAX_POST_IMAGES = 5;
+
 // ─── GET ALL COMMUNITIES ──────────────────────────────────────────────────────
 export const getCommunities = async (req, res, next) => {
   try {
@@ -26,7 +28,7 @@ export const getCommunityPosts = async (req, res, next) => {
     const limit = Math.min(Number(_rawLimit), 100);
 
     const [rows] = await pool.query(
-      `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+      `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
               cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
               u.user_id, u.username, u.profile_picture,
               g.game_name
@@ -52,7 +54,27 @@ export const createPost = async (req, res, next) => {
 
     // FIX H9: sanitize user-generated content before storing
     const body = sanitizeFields({ ...req.body }, ["title", "content"]);
-    const { title, content, image_url } = body;
+    const { title, content, image_url, image_urls: rawImageUrls } = body;
+
+    // ── Build the images array (supports both single and multi) ──
+    // image_urls (array) takes priority over legacy image_url (single string)
+    let imagesArray = [];
+    if (Array.isArray(rawImageUrls) && rawImageUrls.length > 0) {
+      // Multi-image path: slice to max, filter out empty strings
+      imagesArray = rawImageUrls
+        .filter((u) => typeof u === "string" && u.trim().length > 0)
+        .slice(0, MAX_POST_IMAGES);
+    } else if (typeof rawImageUrls === "string" && rawImageUrls.trim()) {
+      // Fallback: image_urls sent as a single string (shouldn't happen but guard it)
+      imagesArray = [rawImageUrls.trim()];
+    } else if (image_url && typeof image_url === "string" && image_url.trim()) {
+      // Legacy single-image field
+      imagesArray = [image_url.trim()];
+    }
+
+    // Keep image_url as the first image for backward compat with old clients / admin views
+    const firstImage    = imagesArray[0] || null;
+    const imageUrlsJson = imagesArray.length > 0 ? JSON.stringify(imagesArray) : null;
 
     const [communityRows] = await pool.query(
       "SELECT community_id FROM communities WHERE community_id = ?",
@@ -62,13 +84,15 @@ export const createPost = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Community not found" });
 
     const [result] = await pool.query(
-      `INSERT INTO community_posts (community_id, user_id, title, content, image_url)
-       VALUES (?, ?, ?, ?, ?)`,
-      [community_id, userId, title, content, image_url || null]
+      `INSERT INTO community_posts (community_id, user_id, title, content, image_url, image_urls)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [community_id, userId, title, content, firstImage, imageUrlsJson]
     );
 
     const [newPost] = await pool.query(
-      `SELECT cp.*, u.user_id, u.username, u.profile_picture
+      `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
+              cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
+              u.user_id, u.username, u.profile_picture
        FROM community_posts cp
        JOIN users u ON u.user_id = cp.user_id
        WHERE cp.post_id = ?`,
@@ -85,7 +109,9 @@ export const getPost = async (req, res, next) => {
     const { post_id } = req.params;
 
     const [postRows] = await pool.query(
-      `SELECT cp.*, u.user_id, u.username, u.profile_picture, g.game_name
+      `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
+              cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
+              u.user_id, u.username, u.profile_picture, g.game_name
        FROM community_posts cp
        JOIN users u ON u.user_id = cp.user_id
        LEFT JOIN communities c ON c.community_id = cp.community_id
@@ -230,7 +256,7 @@ export const getFollowingPosts = async (req, res, next) => {
     const limit = Math.min(Number(_rawLimit), 100);
 
     const [rows] = await pool.query(
-      `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+      `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
               cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
               u.user_id, u.username, u.profile_picture,
               c.name AS community_name,
@@ -260,7 +286,7 @@ export const getAllFavGamesPosts = async (req, res, next) => {
     // If following=true but user is not authenticated, fall back to all posts
     if (following === "true" && userId) {
       const [rows] = await pool.query(
-        `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+        `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
                 cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
                 u.user_id, u.username, u.profile_picture,
                 c.name AS community_name, g.game_name
@@ -279,8 +305,6 @@ export const getAllFavGamesPosts = async (req, res, next) => {
 
     // FIX: When a user is logged in, show posts from their fav game communities.
     // When not logged in OR they have no fav games, fall back to all posts.
-    // Previously the frontend filtered by game_ids param, but the backend ignored it.
-    // Now the backend does the filtering itself based on user_game_profile.
     let rows;
     if (userId) {
       // Check if user has any fav games first
@@ -291,7 +315,7 @@ export const getAllFavGamesPosts = async (req, res, next) => {
 
       if (favGames.length > 0) {
         [rows] = await pool.query(
-          `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+          `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
                   cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
                   u.user_id, u.username, u.profile_picture,
                   c.name AS community_name, g.game_name
@@ -309,7 +333,7 @@ export const getAllFavGamesPosts = async (req, res, next) => {
       } else {
         // Authenticated but no games selected — show all posts
         [rows] = await pool.query(
-          `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+          `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
                   cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
                   u.user_id, u.username, u.profile_picture,
                   c.name AS community_name, g.game_name
@@ -324,7 +348,7 @@ export const getAllFavGamesPosts = async (req, res, next) => {
       }
     } else {
       [rows] = await pool.query(
-        `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+        `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
                 cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
                 u.user_id, u.username, u.profile_picture,
                 c.name AS community_name, g.game_name
@@ -383,7 +407,7 @@ export const deleteComment = async (req, res, next) => {
     if (String(rows[0].user_id) !== String(userId) && !req.user?.isAdmin)
       return res.status(403).json({ success: false, message: "Not authorised to delete this comment" });
 
-    await pool.query("DELETE FROM post_comments WHERE comment_id = ?", [comment_id]);
+    await pool.query("DELETE FROM post_comments WHERE comment_id = ?\n", [comment_id]);
     // NOTE: comment_count is decremented by the trg_decrement_comment_count DB trigger.
     // Do NOT update it manually here — that would double-decrement.
 
@@ -398,7 +422,7 @@ export const getAllPosts = async (req, res, next) => {
     const limit = Math.min(Number(_rawLimit), 200);
 
     const [rows] = await pool.query(
-      `SELECT cp.post_id, cp.title, cp.content, cp.image_url,
+      `SELECT cp.post_id, cp.title, cp.content, cp.image_url, cp.image_urls,
               cp.upvotes, cp.downvotes, cp.comment_count, cp.created_at,
               u.user_id, u.username,
               c.name AS community_name

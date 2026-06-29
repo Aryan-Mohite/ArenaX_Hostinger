@@ -1358,3 +1358,14 @@ CREATE TABLE IF NOT EXISTS chat_read_status (
     CONSTRAINT fk_crs_user FOREIGN KEY (user_id)
         REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+ALTER TABLE community_posts
+  ADD COLUMN image_urls JSON NULL AFTER image_url;
+
+
+UPDATE community_posts
+SET image_urls = JSON_ARRAY(image_url)
+WHERE image_url IS NOT NULL
+  AND image_urls IS NULL;

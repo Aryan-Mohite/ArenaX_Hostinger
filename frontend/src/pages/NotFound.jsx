@@ -44,7 +44,8 @@ export default function NotFound() {
           alt="Page not found"
           className="w-full h-auto block"
         />
-        {/* Pulsing glow over the dragon's eyes, positioned relative to the image itself */}
+        {/* Fades the hard image rectangle into the black page background */}
+        <div className="nf-edge-fade" />
       </div>
 
       {/* Return button — sits below the artwork, never overlapping it */}
@@ -66,20 +67,13 @@ export default function NotFound() {
           100% { transform: scale(1.05); }
         }
 
-        .nf-eye-glow {
+        .nf-edge-fade {
           position: absolute;
-          width: 1.2%;
-          height: 1.8%;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,40,55,0.95) 0%, rgba(255,40,55,0.5) 40%, transparent 75%);
-          box-shadow: 0 0 12px 4px rgba(255,40,55,0.6);
-          transform: translate(-50%, -50%);
-          z-index: 5;
-          animation: nfPulse 2.4s ease-in-out infinite;
-        }
-        @keyframes nfPulse {
-          0%, 100% { opacity: 0.55; box-shadow: 0 0 8px 3px rgba(255,40,55,0.45); }
-          50%      { opacity: 1;    box-shadow: 0 0 22px 8px rgba(255,40,55,0.85); }
+          inset: 0;
+          pointer-events: none;
+          background:
+            linear-gradient(to right,  #000 0%, transparent 6%, transparent 94%, #000 100%),
+            linear-gradient(to bottom, #000 0%, transparent 6%, transparent 94%, #000 100%);
         }
 
         .nf-petal {
@@ -100,7 +94,7 @@ export default function NotFound() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .nf-kenburns img, .nf-eye-glow, .nf-petal {
+          .nf-kenburns img, .nf-petal {
             animation: none !important;
           }
         }

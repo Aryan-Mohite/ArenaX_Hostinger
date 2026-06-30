@@ -26,14 +26,16 @@
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-
       gtag("config", "G-2NLTE7MDJ2");
     </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ══ PRIMARY SEO ══════════════════════════════════════════ -->
-    <title>ArenaX — Prove It.</title>
+    <!-- FIX 1: Was "ArenaX — Prove It." — mismatched from og:title -->
+    <title>ArenaX — Compete. Conquer. Connect. | Esports Platform</title>
+
     <meta
       name="description"
       content="ArenaX is the all-in-one esports platform for competitive FPS players. Join tournaments, find squadmates, watch live streams, and track your stats — all in one place."
@@ -43,7 +45,8 @@
       content="esports platform, Valorant tournaments, Team finder, FPS tournaments, competitive gaming, esports stats tracker, find teammates valorant, online gaming tournaments, Community for gamers, esports events, gaming competitions, live streams, esports news, gaming community, competitive FPS players"
     />
     <meta name="author" content="ArenaX" />
-    <meta name="robots" content="index, follow" />
+    <!-- FIX 2: Extended robots meta — unlocks Google's rich preview features -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://arenax.io/" />
 
     <!-- ══ GOOGLE SITE VERIFICATION ═════════════════════════════ -->
@@ -55,7 +58,8 @@
     <!-- ══ OPEN GRAPH (Facebook, Discord, WhatsApp, LinkedIn) ═══ -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ArenaX" />
-    <meta property="og:title" content="ArenaX — COMPETE. CONQUER. CONNECT." />
+    <!-- FIX 3: Was "COMPETE. CONQUER. CONNECT." (all caps) — now consistent with <title> -->
+    <meta property="og:title" content="ArenaX — Compete. Conquer. Connect. | Esports Platform" />
     <meta
       property="og:description"
       content="The all-in-one esports platform. Tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players."
@@ -66,7 +70,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="ArenaX — The esports platform. COMPETE. CONQUER. CONNECT."
+      content="ArenaX — The esports platform. Compete. Conquer. Connect."
     />
     <meta property="og:locale" content="en_US" />
 
@@ -74,7 +78,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Official_ArenaX" />
     <meta name="twitter:creator" content="@Official_ArenaX" />
-    <meta name="twitter:title" content="ArenaX — COMPETE. CONQUER. CONNECT." />
+    <!-- FIX 4: Was "COMPETE. CONQUER. CONNECT." — now consistent -->
+    <meta name="twitter:title" content="ArenaX — Compete. Conquer. Connect. | Esports Platform" />
     <meta
       name="twitter:description"
       content="The all-in-one esports platform. Tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players."
@@ -102,26 +107,53 @@
     />
 
     <!-- ══ STRUCTURED DATA (JSON-LD) ════════════════════════════ -->
+    <!-- FIX 5: Was WebSite only — now @graph with Organization + WebSite -->
+    <!-- Organization schema lets Google show your logo, social links,
+         and brand info in Knowledge Panel results -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "ArenaX",
-        "url": "https://arenax.io",
-        "description": "All-in-one esports platform for competitive FPS players — tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://arenax.io/search?q={search_term_string}"
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://arenax.io/#organization",
+            "name": "ArenaX",
+            "url": "https://arenax.io",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://arenax.io/og-preview.png",
+              "width": 1200,
+              "height": 630
+            },
+            "description": "All-in-one esports platform for competitive FPS players — tournaments, Team finder, live streams, and Nexus Community.",
+            "foundingDate": "2026",
+            "areaServed": "Worldwide",
+            "knowsAbout": ["esports", "Valorant", "FPS gaming", "esports tournaments", "competitive gaming"],
+            "sameAs": [
+              "https://www.instagram.com/arenax_gg/",
+              "https://x.com/Official_ArenaX",
+              "https://www.youtube.com/@ArenaX_gg",
+              "https://www.twitch.tv/arenaxxtreme"
+            ]
           },
-          "query-input": "required name=search_term_string"
-        },
-        "sameAs": [
-          "https://www.instagram.com/arenax_gg/",
-          "https://x.com/Official_ArenaX",
-          "https://www.youtube.com/@ArenaX_gg",
-          "https://www.twitch.tv/arenaxxtreme"
+          {
+            "@type": "WebSite",
+            "@id": "https://arenax.io/#website",
+            "url": "https://arenax.io",
+            "name": "ArenaX",
+            "description": "All-in-one esports platform for competitive FPS players — tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players.",
+            "publisher": {
+              "@id": "https://arenax.io/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://arenax.io/search?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          }
         ]
       }
     </script>

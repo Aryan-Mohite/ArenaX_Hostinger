@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getTournaments } from "../services/tournamentService";
 import { getLiveStreams } from "../services/streamService";
 import TournamentCard from "../components/TournamentCard";
+import SEO from "../components/SEO";
 
 // ─── Skeleton loaders ────────────────────────────────────────────────────────
 function SkeletonCard({ className = "" }) {
@@ -162,6 +163,15 @@ export default function Home() {
 
   return (
     <div className="animate-fade-in">
+      {/* FIX: Home.jsx previously had NO <SEO /> — it silently relied on the
+          static tags baked into index.html, so a 404, redirect, or future
+          index.html change could leave the homepage without page-specific
+          tags. Explicit is better than implicit here. */}
+      <SEO
+        title="ArenaX — Compete. Conquer. Connect."
+        description="ArenaX is the all-in-one esports platform for competitive FPS players. Join tournaments, find squadmates, watch live streams, and track your stats — all in one place."
+        path="/"
+      />
       {/* ══════════════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════════════ */}

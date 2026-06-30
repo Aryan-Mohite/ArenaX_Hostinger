@@ -16,6 +16,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import About from "./pages/About";
+import Faq from "./pages/Faq";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminArchiveDashboard from "./pages/admin/AdminArchiveDashboard";
@@ -37,6 +40,9 @@ export default function App() {
         <Route path="/communities" element={<Layout><Communities /></Layout>} />
         <Route path="/stream" element={<Layout><Stream /></Layout>} />
         <Route path="/about" element={<Layout><About /></Layout>} />
+        <Route path="/faq" element={<Layout><Faq /></Layout>} />
+        <Route path="/blog" element={<Layout><Blog /></Layout>} />
+        <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
         <Route path="/terms" element={<Layout><TermsAndConditions /></Layout>} />
         <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
         <Route path="/login" element={<Layout><Login /></Layout>} />

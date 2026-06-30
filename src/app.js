@@ -186,6 +186,16 @@ Sitemap: https://arenax.io/sitemap.xml
 `);
 });
 
+// Blog post slugs — keep in sync with frontend/src/data/blogPosts.js.
+// The backend can't import frontend source directly, so this is a hardcoded
+// mirror. When you add a new post to blogPosts.js, add its slug here too.
+const BLOG_SLUGS = [
+  "how-to-join-valorant-tournaments-online",
+  "finding-the-right-teammates-fps-games",
+  "building-a-streaming-setup-on-a-budget",
+  "understanding-tournament-formats-explained",
+];
+
 // ─── SEO ADD 6: Dynamic sitemap.xml route ─────────────────────────────────────
 // Dynamic so it can include live tournament pages from the DB.
 // Falls back gracefully if DB is unavailable.
@@ -202,7 +212,16 @@ app.get("/sitemap.xml", async (_req, res) => {
     { url: "/stream",      priority: "0.8", changefreq: "daily"   },
     { url: "/communities", priority: "0.7", changefreq: "weekly"  },
     { url: "/about",       priority: "0.5", changefreq: "monthly" },
+    { url: "/blog",        priority: "0.7", changefreq: "weekly"  },
+    { url: "/faq",         priority: "0.6", changefreq: "monthly" },
   ];
+
+  // Blog posts — static content, listed individually so each gets indexed.
+  const blogPages = BLOG_SLUGS.map((slug) => ({
+    url: `/blog/${slug}`,
+    priority: "0.6",
+    changefreq: "monthly",
+  }));
 
   // Dynamic: pull live tournaments from DB for individual tournament URLs.
   // FIXED column names/values to match database/arenaX_schema_mysql.sql:
@@ -245,7 +264,7 @@ app.get("/sitemap.xml", async (_req, res) => {
   //   console.warn("[sitemap] Could not fetch game pages:", err.message);
   // }
 
-  const allPages = [...staticPages, ...tournamentPages /*, ...gamePages */];
+  const allPages = [...staticPages, ...blogPages, ...tournamentPages /*, ...gamePages */];
 
   const urlEntries = allPages
     .map(

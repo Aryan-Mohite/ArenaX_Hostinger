@@ -11,7 +11,7 @@ import { Helmet } from "react-helmet-async";
  *     path="/tournament"
  *   />
  */
-export default function SEO({ title, description, path = "", image }) {
+export default function SEO({ title, description, path = "", image, jsonLd }) {
   const fullTitle = title
     ? `${title} | ArenaX`
     : "ArenaX — Compete. Conquer. Connect. | Esports Platform";
@@ -37,6 +37,14 @@ export default function SEO({ title, description, path = "", image }) {
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image" content={img} />
+
+      {/* Optional per-page structured data (FAQPage, Article/BlogPosting, Event, etc.)
+          Pass a plain JS object (or array of objects) and it'll be serialized here. */}
+      {jsonLd && (
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      )}
     </Helmet>
   );
 }

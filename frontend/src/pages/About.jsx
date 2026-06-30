@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../components/SEO";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -423,6 +424,11 @@ function CtaSection() {
 export default function About() {
   return (
     <div className="min-h-screen">
+      <SEO
+        title="About ArenaX"
+        description="ArenaX is built for competitive FPS players — tournaments, team finding, live streams, and a real esports community."
+        path="/about"
+      />
       <HeroSection />
       <StatsBar />
       <MissionSection />

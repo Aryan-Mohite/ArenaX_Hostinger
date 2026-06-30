@@ -475,6 +475,7 @@ export default function Home() {
                     <div className="relative w-full aspect-video bg-gradient-to-br from-surface-border/60 to-surface-card flex items-center justify-center overflow-hidden">
                       {s.thumbnail_url ? (
                         <img
+          loading="lazy"
                           src={s.thumbnail_url}
                           alt={s.title}
                           className="w-full h-full object-cover"

@@ -43,6 +43,7 @@ function Avatar({ user, sizePx = 96 }) {
   if (user?.profile_picture)
     return (
       <img
+          loading="lazy"
         src={user.profile_picture}
         alt={user.username}
         className="rounded-full object-cover border-2 border-red/40 shrink-0"
@@ -117,6 +118,7 @@ function CommunityPostCard({ post }) {
         </div>
         {post.image_url && (
           <img
+          loading="lazy"
             src={post.image_url}
             alt=""
             className="w-14 h-14 rounded-lg object-cover border border-surface-border shrink-0"
@@ -237,6 +239,7 @@ function GameProfileRow({ gp }) {
     >
       {gp.icon ? (
         <img
+          loading="lazy"
           src={gp.icon}
           alt={gp.game_name}
           className="w-8 h-8 rounded-lg object-cover shrink-0"
@@ -765,6 +768,7 @@ export default function UserProfile() {
                 <div className="w-10 h-10 rounded-xl bg-red/20 border border-red/30 flex items-center justify-center text-lg shrink-0">
                   {team.game_icon ? (
                     <img
+          loading="lazy"
                       src={team.game_icon}
                       alt=""
                       className="w-full h-full rounded-xl object-cover"

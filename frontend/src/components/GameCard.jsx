@@ -93,6 +93,7 @@ function GameCover({ game, height = "h-44" }) {
     <div className={`relative w-full ${height} overflow-hidden flex-shrink-0`}>
       {src ? (
         <img
+          loading="lazy"
           src={src}
           alt={game.game_name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

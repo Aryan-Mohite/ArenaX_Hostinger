@@ -11,6 +11,7 @@ import {
   deleteComment,
 } from "../services/communityService";
 import { getMyGames } from "../services/gameService";
+import SEO from "../components/SEO";
 import {
   PageLoader,
   EmptyState,
@@ -140,6 +141,7 @@ function Avatar({ user, size = 9, onClick }) {
   if (user?.profile_picture)
     return (
       <img
+          loading="lazy"
         src={user.profile_picture}
         alt={user.username}
         onClick={onClick}
@@ -198,6 +200,7 @@ function CommunityBanner({ community, isActive, onClick }) {
       >
         {imgSrc ? (
           <img
+          loading="lazy"
             src={imgSrc}
             alt={gameName}
             className="w-full h-full object-cover"
@@ -269,6 +272,7 @@ function ImageLightbox({ images, initialIdx, onClose }) {
 
       {/* Image */}
       <img
+          loading="lazy"
         src={images[idx]}
         alt={`Image ${idx + 1} of ${images.length}`}
         className="max-w-[88vw] max-h-[88vh] object-contain rounded-lg shadow-2xl select-none"
@@ -389,6 +393,7 @@ function PostCard({
         <div className="mt-3 rounded-xl overflow-hidden border border-surface-border relative select-none">
           {/* Main image */}
           <img
+          loading="lazy"
             src={images[currentImg]}
             alt={`Post image ${currentImg + 1}`}
             className="w-full max-h-72 object-cover cursor-zoom-in transition-opacity duration-200"
@@ -546,6 +551,7 @@ function CommentPanel({ post, onClose, currentUserId, onViewProfile }) {
         <div className="flex items-start gap-3 px-5 py-4 border-b border-surface-border shrink-0">
           {firstImage && (
             <img
+          loading="lazy"
               src={firstImage}
               alt=""
               className="w-12 h-12 rounded-lg object-cover border border-surface-border shrink-0"
@@ -861,6 +867,7 @@ function NewPostForm({ communityName, onSubmit, onCancel, error }) {
                 {images.map((img, idx) => (
                   <div key={idx} className="relative group/img aspect-square">
                     <img
+          loading="lazy"
                       src={img.preview}
                       alt={`preview ${idx + 1}`}
                       className="w-full h-full object-cover rounded-lg border border-surface-border"
@@ -1051,6 +1058,11 @@ export default function Communities() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
+      <SEO
+        title="Esports Communities"
+        description="Join esports communities on ArenaX. Connect with players, teams, and organizers across Valorant, CS2, and more."
+        path="/communities"
+      />
       {/* Toast notification */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-surface-card border border-green-500/30 text-green-400 text-sm px-5 py-3 rounded-full shadow-card animate-fade-in">

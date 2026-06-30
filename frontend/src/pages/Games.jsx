@@ -11,6 +11,7 @@ import { PageLoader, EmptyState, ErrorMessage } from "../components/UI";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
+import SEO from "../components/SEO";
 
 // ─── Genre accent colors ──────────────────────────────────────────────────────
 const GENRE_COLORS = {
@@ -83,6 +84,7 @@ function SpotlightCover({ game }) {
     <div className="relative w-full h-40 overflow-hidden">
       {src ? (
         <img
+          loading="lazy"
           src={src}
           alt={game.game_name}
           className="w-full h-full object-cover"
@@ -332,6 +334,11 @@ export default function Games() {
 
   return (
     <div className="animate-fade-in">
+      <SEO
+        title="Browse Games — Valorant, CS2, PUBG & More"
+        description="Browse all games supported on ArenaX including Valorant, CS2, PUBG, BGMI, Free Fire, and more. Join tournaments and find teammates for your favorite game."
+        path="/games"
+      />
       {/* ── Hero banner ── */}
       <div className="relative border-b border-surface-border bg-surface-card/40 overflow-hidden">
         <div

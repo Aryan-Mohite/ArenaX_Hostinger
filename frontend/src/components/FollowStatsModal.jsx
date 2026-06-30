@@ -6,6 +6,7 @@ function Avatar({ user }) {
   if (user?.profile_picture)
     return (
       <img
+          loading="lazy"
         src={user.profile_picture}
         alt={user.username}
         className="w-10 h-10 rounded-full object-cover border-2 border-red/30 shrink-0"

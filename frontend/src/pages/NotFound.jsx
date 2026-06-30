@@ -40,6 +40,7 @@ export default function NotFound() {
       {/* Image block — never cropped, never upscaled past its native size */}
       <div className="relative z-10 w-full nf-kenburns" style={{ maxWidth: "1300px" }}>
         <img
+          loading="lazy"
           src={dragonBg}
           alt="Page not found"
           className="w-full h-auto block"

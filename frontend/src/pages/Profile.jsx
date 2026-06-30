@@ -313,6 +313,7 @@ export default function Profile() {
           <div className="relative w-20 h-20 shrink-0 group">
             {profile?.profile_picture ? (
               <img
+          loading="lazy"
                 src={profile.profile_picture}
                 alt={profile.username}
                 className="w-20 h-20 rounded-full object-cover border-2 border-red/40 glow-red"
@@ -454,6 +455,7 @@ export default function Profile() {
               <div className="w-16 h-16 rounded-full border-2 border-surface-border overflow-hidden shrink-0 bg-red/10 flex items-center justify-center relative">
                 {avatarPreview ? (
                   <img
+          loading="lazy"
                     src={avatarPreview}
                     alt="preview"
                     className="w-full h-full object-cover"
@@ -781,6 +783,7 @@ export default function Profile() {
                 <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-red/10 border border-red/20">
                   {team.game_icon ? (
                     <img
+          loading="lazy"
                       src={team.game_icon}
                       alt=""
                       className="w-full h-full object-cover"
@@ -816,6 +819,7 @@ export default function Profile() {
                         <div className="w-6 h-6 rounded-full bg-red/20 border border-red/30 flex items-center justify-center text-xs font-bold text-red overflow-hidden">
                           {m.profile_picture ? (
                             <img
+          loading="lazy"
                               src={m.profile_picture}
                               alt={m.username}
                               className="w-full h-full object-cover"

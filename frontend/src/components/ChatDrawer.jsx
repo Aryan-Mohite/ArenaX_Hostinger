@@ -63,6 +63,7 @@ function Avatar({ username, picture, color, size = 8 }) {
     >
       {picture ? (
         <img
+          loading="lazy"
           src={picture}
           alt={username}
           className="w-full h-full object-cover"

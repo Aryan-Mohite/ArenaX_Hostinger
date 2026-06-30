@@ -13,6 +13,7 @@ import {
 import { getMyGames } from "../services/gameService";
 import { ErrorMessage } from "../components/UI";
 import TeamIdBadge from "../components/TeamIdBadge";
+import SEO from "../components/SEO";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
@@ -259,6 +260,7 @@ function RosterModal({ post, onClose, navigate }) {
                             >
                               {app.profile_picture ? (
                                 <img
+          loading="lazy"
                                   src={app.profile_picture}
                                   alt={app.username}
                                   className="w-full h-full object-cover"
@@ -678,6 +680,7 @@ function MyTeamsPanel({ myGames, onPostForTeam, refreshKey, onTeamsLoaded }) {
                             <div className="w-7 h-7 rounded-full bg-red/20 border border-red/30 flex items-center justify-center text-xs font-bold text-red overflow-hidden">
                               {m.profile_picture ? (
                                 <img
+          loading="lazy"
                                   src={m.profile_picture}
                                   alt={m.username}
                                   className="w-full h-full object-cover"
@@ -854,6 +857,7 @@ function MyDispatchesPanel() {
                     >
                       {app.poster_picture ? (
                         <img
+          loading="lazy"
                           src={app.poster_picture}
                           alt=""
                           className="w-full h-full object-cover"
@@ -974,6 +978,7 @@ function ApplyModal({ post, onClose, onSubmit }) {
             <div className="w-10 h-10 rounded-xl bg-red/20 border border-red/30 flex items-center justify-center text-red font-bold overflow-hidden">
               {post.profile_picture ? (
                 <img
+          loading="lazy"
                   src={post.profile_picture}
                   alt=""
                   className="w-full h-full object-cover"
@@ -1195,6 +1200,7 @@ function ListingCard({
           >
             {profile_picture ? (
               <img
+          loading="lazy"
                 src={profile_picture}
                 alt={username}
                 className="w-full h-full object-cover"
@@ -1443,6 +1449,11 @@ export default function TeamFinder() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
+      <SEO
+        title="Find Teammates for Valorant & FPS Games"
+        description="Use ArenaX Team Finder to find skilled teammates for Valorant, CS2, and other FPS games. Match by rank, playstyle, and availability."
+        path="/teamfinder"
+      />
       {toast.msg && (
         <div
           className={

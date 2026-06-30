@@ -193,32 +193,34 @@ app.get("/sitemap.xml", async (_req, res) => {
   const baseUrl = "https://arenax.io";
   const today   = new Date().toISOString().split("T")[0];
 
-  // Static pages — add any new page here as you build it
+  // Static pages — FIXED to match real routes in frontend/src/App.jsx
   const staticPages = [
-    { url: "/",             priority: "1.0", changefreq: "weekly"  },
-    { url: "/tournaments",  priority: "0.9", changefreq: "daily"   },
-    { url: "/team-finder",  priority: "0.9", changefreq: "weekly"  },
-    { url: "/live",         priority: "0.8", changefreq: "daily"   },
-    { url: "/stats",        priority: "0.7", changefreq: "weekly"  },
-    { url: "/community",    priority: "0.7", changefreq: "weekly"  },
-    { url: "/about",        priority: "0.5", changefreq: "monthly" },
-    { url: "/faq",          priority: "0.6", changefreq: "monthly" },
-    { url: "/blog",         priority: "0.6", changefreq: "weekly"  },
+    { url: "/",            priority: "1.0", changefreq: "weekly"  },
+    { url: "/games",       priority: "0.9", changefreq: "weekly"  },
+    { url: "/tournament",  priority: "0.9", changefreq: "daily"   },
+    { url: "/teamfinder",  priority: "0.9", changefreq: "weekly"  },
+    { url: "/stream",      priority: "0.8", changefreq: "daily"   },
+    { url: "/communities", priority: "0.7", changefreq: "weekly"  },
+    { url: "/about",       priority: "0.5", changefreq: "monthly" },
   ];
 
-  // Dynamic: pull active tournaments from DB for individual tournament URLs
+  // Dynamic: pull live tournaments from DB for individual tournament URLs.
+  // FIXED column names/values to match database/arenaX_schema_mysql.sql:
+  //   tournament_id (not "id"), created_at (no updated_at column),
+  //   status enum is upcoming/ongoing/completed/cancelled (no "active")
   let tournamentPages = [];
   try {
     const pool = (await import("./config/db.js")).default;
     const [rows] = await pool.query(
-      "SELECT id, updated_at FROM tournaments WHERE status = 'active' OR status = 'upcoming' LIMIT 200"
+      "SELECT tournament_id, created_at FROM tournaments WHERE status IN ('upcoming','ongoing') LIMIT 200"
     );
     tournamentPages = rows.map((t) => ({
-      url: `/tournaments/${t.id}`,
+      // FIXED: route is /tournament/:id (singular), not /tournaments/:id
+      url: `/tournament/${t.tournament_id}`,
       priority: "0.7",
       changefreq: "daily",
-      lastmod: t.updated_at
-        ? new Date(t.updated_at).toISOString().split("T")[0]
+      lastmod: t.created_at
+        ? new Date(t.created_at).toISOString().split("T")[0]
         : today,
     }));
   } catch (err) {
@@ -226,7 +228,24 @@ app.get("/sitemap.xml", async (_req, res) => {
     console.warn("[sitemap] Could not fetch tournament pages:", err.message);
   }
 
-  const allPages = [...staticPages, ...tournamentPages];
+  // Dynamic: pull games for /games/:slug style pages, if/when that route exists.
+  // Currently /games is a single listing page (no per-game route in App.jsx),
+  // so this is commented out until a /games/:slug route is added.
+  //
+  // let gamePages = [];
+  // try {
+  //   const pool = (await import("./config/db.js")).default;
+  //   const [rows] = await pool.query("SELECT slug FROM games");
+  //   gamePages = rows.map((g) => ({
+  //     url: `/games/${g.slug}`,
+  //     priority: "0.7",
+  //     changefreq: "weekly",
+  //   }));
+  // } catch (err) {
+  //   console.warn("[sitemap] Could not fetch game pages:", err.message);
+  // }
+
+  const allPages = [...staticPages, ...tournamentPages /*, ...gamePages */];
 
   const urlEntries = allPages
     .map(

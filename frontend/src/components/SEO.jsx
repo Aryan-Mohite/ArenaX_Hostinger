@@ -14,11 +14,11 @@ import { Helmet } from "react-helmet-async";
 export default function SEO({ title, description, path = "", image, jsonLd }) {
   const fullTitle = title
     ? `${title} | ArenaX`
-    : "ArenaX — Compete. Conquer. Connect. | Esports Platform";
+    : "ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX";
 
   const desc =
     description ||
-    "ArenaX is the all-in-one esports platform for competitive FPS players. Join tournaments, find squadmates, watch live streams, and track your stats — all in one place.";
+    "ArenaX is the all-in-one esports platform for competitive FPS players — join free tournaments, build teams, watch live streams, track your stats.";
 
   const url = `https://arenax.io${path}`;
   const img = image || "https://arenax.io/og-preview.png";

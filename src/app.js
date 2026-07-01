@@ -168,6 +168,9 @@ app.get("/health", async (_req, res) => {
 // ─── SEO ADD 5: robots.txt route ──────────────────────────────────────────────
 // Placed before API routes and static files so it's always served correctly.
 // Disallows API/auth routes from being crawled (saves crawl budget).
+// GEO FIX (round 4): Removed the GPTBot block — it was preventing ChatGPT and
+// other LLM crawlers from indexing ArenaX, directly hurting the GEO score.
+// All major AI bots are now explicitly allowed to crawl the public site.
 app.get("/robots.txt", (_req, res) => {
   res.setHeader("Content-Type", "text/plain");
   res.send(
@@ -179,10 +182,101 @@ Disallow: /admin/
 Allow: /*.css$
 Allow: /*.js$
 
+# ── AI / LLM crawlers — explicitly allowed ──────────────────────────────────
+# Blocking these hurts Generative Engine Optimization (GEO). Let them crawl.
 User-agent: GPTBot
-Disallow: /
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
 
 Sitemap: https://arenax.io/sitemap.xml
+LLMs: https://arenax.io/llms.txt
+`);
+});
+
+// ─── GEO ADD 7: llms.txt route ────────────────────────────────────────────────
+// llms.txt is a proposed standard (llmstxt.org) for giving LLM crawlers a
+// structured, plain-text summary of a site — analogous to robots.txt but for
+// AI. Because ArenaX is a React SPA (440% client-side rendering), LLMs that
+// crawl the raw HTML shell see very little content. This file compensates by
+// providing a canonical, crawlable description of every feature and page.
+app.get("/llms.txt", (_req, res) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.send(
+`# ArenaX — Compete. Conquer. Connect.
+> ArenaX (https://arenax.io) is a free, all-in-one esports platform for competitive FPS players. Players can find and enter free tournaments, build and manage teams, watch live streams, and connect with the gaming community — all in one place.
+
+## Site Overview
+- **Name:** ArenaX
+- **URL:** https://arenax.io
+- **Type:** Esports platform / competitive gaming hub
+- **Audience:** Competitive FPS gamers, esports players, tournament organizers
+- **Supported Games:** Valorant, CS2, League of Legends, Fortnite, Dota 2, Apex Legends
+- **Region:** Global, with focus on South Asia and worldwide FPS community
+- **Cost:** Free to join. No credit card required.
+
+## Core Features
+
+### Tournaments (/tournament)
+Players can browse and register for free online esports tournaments. Tournaments are organized by game, format, and prize pool. Entry is free. Upcoming and live tournaments are listed with team size, entry requirements, and schedule. Supported formats include 1v1, 5v5, and team-based brackets.
+
+### Team Finder (/teamfinder)
+A dedicated matchmaking tool for players looking for teammates. Users post their game, rank, role, and availability. Other players can browse and request to join. Built for FPS games like Valorant and CS2 where team composition matters. Helps solo players find squads for tournaments.
+
+### Games (/games)
+A directory of all games supported on ArenaX. Each game page lists active tournaments, top players, and community resources. Currently supported: Valorant, CS2 (Counter-Strike 2), League of Legends, Fortnite, Dota 2, Apex Legends.
+
+### Live Streams (/stream)
+Watch live esports streams directly on ArenaX. Streams are sourced from active tournaments and community players. Integrated stream viewer with no third-party redirect required.
+
+### The Nexus — Communities (/communities)
+Community hub for ArenaX players. Players can join game-specific communities, post updates, find events, and engage with other competitive gamers. Replaces traditional gaming forums with a focused esports community experience.
+
+### About (/about)
+Background on ArenaX, its mission, founding team, and platform values. ArenaX was founded in 2026 with the goal of making esports accessible and competitive for everyone.
+
+### Blog (/blog)
+Educational esports content covering tournament strategy, team building, streaming setup, and competitive gaming guides. Articles include:
+- How to Join Valorant Tournaments Online
+- Finding the Right Teammates for FPS Games
+- Building a Streaming Setup on a Budget
+- Understanding Tournament Formats Explained
+
+## Key Pages
+- Home: https://arenax.io/
+- Tournaments: https://arenax.io/tournament
+- Team Finder: https://arenax.io/teamfinder
+- Games: https://arenax.io/games
+- Live Streams: https://arenax.io/stream
+- Communities: https://arenax.io/communities
+- Blog: https://arenax.io/blog
+- About: https://arenax.io/about
+- Sign In: https://arenax.io/login
+- Register: https://arenax.io/register
+
+## Technical
+- Sitemap: https://arenax.io/sitemap.xml
+- Robots: https://arenax.io/robots.txt
+
+## Social / Contact
+- Instagram: https://www.instagram.com/arenax_gg/
+- X (Twitter): https://x.com/Official_ArenaX
+- YouTube: https://www.youtube.com/@ArenaX_gg
+- Twitch: https://www.twitch.tv/arenaxxtreme
 `);
 });
 

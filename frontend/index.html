@@ -34,11 +34,11 @@
 
     <!-- ══ PRIMARY SEO ══════════════════════════════════════════ -->
     <!-- FIX 1: Was "ArenaX — Prove It." — mismatched from og:title -->
-    <title>ArenaX — Compete. Conquer. Connect. | Esports Platform</title>
+    <title>ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX</title>
 
     <meta
       name="description"
-      content="ArenaX is the all-in-one esports platform for competitive FPS players. Join tournaments, find squadmates, watch live streams, and track your stats — all in one place."
+      content="ArenaX is the all-in-one esports platform for competitive FPS players — join free tournaments, build teams, watch live streams, track your stats."
     />
     <meta
       name="keywords"
@@ -47,7 +47,12 @@
     <meta name="author" content="ArenaX" />
     <!-- FIX 2: Extended robots meta — unlocks Google's rich preview features -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <link rel="canonical" href="https://arenax.io/" />
+    <!-- FIX (round 4): removed the static canonical link here. Every page now
+         renders its own <SEO /> component, which injects a canonical via
+         react-helmet-async. Helmet has no awareness of tags written directly
+         in this static HTML file, so leaving one here produced two duplicate
+         <link rel="canonical"> tags on every page. SEO.jsx is now the single
+         source of truth for canonical URLs. -->
 
     <!-- ══ GOOGLE SITE VERIFICATION ═════════════════════════════ -->
     <meta
@@ -59,10 +64,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ArenaX" />
     <!-- FIX 3: Was "COMPETE. CONQUER. CONNECT." (all caps) — now consistent with <title> -->
-    <meta property="og:title" content="ArenaX — Compete. Conquer. Connect. | Esports Platform" />
+    <meta property="og:title" content="ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX" />
     <meta
       property="og:description"
-      content="The all-in-one esports platform. Tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players."
+      content="ArenaX is the all-in-one esports platform for competitive FPS players — join free tournaments, build teams, watch live streams, track your stats."
     />
     <meta property="og:url" content="https://arenax.io/" />
     <meta property="og:image" content="https://arenax.io/og-preview.png" />
@@ -79,10 +84,10 @@
     <meta name="twitter:site" content="@Official_ArenaX" />
     <meta name="twitter:creator" content="@Official_ArenaX" />
     <!-- FIX 4: Was "COMPETE. CONQUER. CONNECT." — now consistent -->
-    <meta name="twitter:title" content="ArenaX — Compete. Conquer. Connect. | Esports Platform" />
+    <meta name="twitter:title" content="ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX" />
     <meta
       name="twitter:description"
-      content="The all-in-one esports platform. Tournaments, Team finder, live streams, and Nexus Community — built for serious eSports players."
+      content="ArenaX is the all-in-one esports platform for competitive FPS players — join free tournaments, build teams, watch live streams, track your stats."
     />
     <meta name="twitter:image" content="https://arenax.io/og-preview.png" />
     <meta name="twitter:image:alt" content="ArenaX esports platform" />
@@ -170,6 +175,82 @@
       ></iframe
     ></noscript>
     <!-- End Google Tag Manager (noscript) -->
+
+    <!--
+      GEO / LLM READABILITY BLOCK (round 4)
+      ─────────────────────────────────────
+      ArenaX is a React SPA. LLM crawlers (ChatGPT, Perplexity, Claude, etc.)
+      that cannot execute JavaScript see only this static HTML shell, which
+      normally contains no indexable content (hence the 440% rendering delta
+      flagged by SEOptimer). This noscript block gives those crawlers a
+      complete, structured summary of the site without affecting visual users.
+    -->
+    <noscript>
+      <div id="llm-content" style="font-family:sans-serif;max-width:800px;margin:0 auto;padding:2rem;color:#111;">
+        <h1>ArenaX — Compete. Conquer. Connect.</h1>
+        <p>
+          ArenaX is a free, all-in-one esports platform for competitive FPS players.
+          Join free tournaments, build your team, watch live streams, and connect with
+          the gaming community — all in one place. No credit card required.
+        </p>
+
+        <h2>Tournaments</h2>
+        <p>
+          Browse and register for free online esports tournaments in Valorant, CS2,
+          League of Legends, Fortnite, Dota 2, and Apex Legends. Formats include
+          1v1, 5v5, and team brackets. Entry is free. <a href="/tournament">Browse tournaments</a>.
+        </p>
+
+        <h2>Team Finder</h2>
+        <p>
+          Find teammates for competitive FPS games. Post your rank, role, and
+          availability. Browse other players looking to form squads for tournaments.
+          Built for solo players who want to compete as a team. <a href="/teamfinder">Find teammates</a>.
+        </p>
+
+        <h2>Supported Games</h2>
+        <ul>
+          <li>Valorant</li>
+          <li>CS2 (Counter-Strike 2)</li>
+          <li>League of Legends</li>
+          <li>Fortnite</li>
+          <li>Dota 2</li>
+          <li>Apex Legends</li>
+        </ul>
+        <p><a href="/games">Browse all games</a></p>
+
+        <h2>Live Streams</h2>
+        <p>
+          Watch live esports streams from active tournaments and community players
+          directly on ArenaX. <a href="/stream">Watch streams</a>.
+        </p>
+
+        <h2>Communities — The Nexus</h2>
+        <p>
+          Join game-specific communities, find events, and connect with competitive
+          players. ArenaX's Nexus is a focused community hub built for esports.
+          <a href="/communities">Join communities</a>.
+        </p>
+
+        <h2>Free Forever</h2>
+        <p>
+          ArenaX is free to join. Create your account, pick your games, and enter
+          your first tournament today. <a href="/register">Create free account</a>.
+        </p>
+
+        <nav aria-label="Site navigation">
+          <a href="/">Home</a> |
+          <a href="/tournament">Tournaments</a> |
+          <a href="/teamfinder">Team Finder</a> |
+          <a href="/games">Games</a> |
+          <a href="/stream">Streams</a> |
+          <a href="/communities">Communities</a> |
+          <a href="/blog">Blog</a> |
+          <a href="/about">About</a>
+        </nav>
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

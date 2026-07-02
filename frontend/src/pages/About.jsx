@@ -39,7 +39,7 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "50+", label: "Registered players" },
+  { value: "1000+", label: "Registered players" },
   { value: "100+", label: "Tournaments forged" },
   { value: "10+", label: "Games in the Grid" },
   { value: "24 / 7", label: "Live streams" },

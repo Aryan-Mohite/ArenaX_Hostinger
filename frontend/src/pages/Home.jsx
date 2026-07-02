@@ -381,7 +381,7 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-7 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-surface-border/40">
           {[
-            { label: "Active Players", value: "50+" },
+            { label: "Active Players", value: "1000+" },
             { label: "Tournaments Hosted", value: "100+" },
             { label: "Teams Assembeled", value: "20+" },
             { label: "Games Supported", value: "10+" },
@@ -485,7 +485,7 @@ export default function Home() {
                     <div className="relative w-full aspect-video bg-gradient-to-br from-surface-border/60 to-surface-card flex items-center justify-center overflow-hidden">
                       {s.thumbnail_url ? (
                         <img
-          loading="lazy"
+                          loading="lazy"
                           src={s.thumbnail_url}
                           alt={s.title}
                           className="w-full h-full object-cover"
@@ -617,7 +617,7 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-sm text-gray-400 ml-1">
-                50,000+ players competing
+                1,000+ players competing
               </p>
             </div>
 

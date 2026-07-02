@@ -247,7 +247,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-sm text-gray-400">
-                  Join <span className="text-white font-semibold">50+</span>{" "}
+                  Join <span className="text-white font-semibold">1000+</span>{" "}
                   players already competing
                 </p>
               </div>

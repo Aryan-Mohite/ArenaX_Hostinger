@@ -56,7 +56,47 @@ async function getDmAccess(userId, applicationId) {
   return app;
 }
 
+/** Validate that a reply target exists inside the same team and return a safe id (or null). */
+async function resolveTeamReplyId(teamId, rawReplyToId) {
+  const replyToId = Number(rawReplyToId) || null;
+  if (!replyToId) return null;
+  const [rows] = await pool.query(
+    `SELECT 1 FROM team_messages WHERE team_message_id = ? AND team_id = ?`,
+    [replyToId, teamId]
+  );
+  return rows.length ? replyToId : null;
+}
+
+/** Validate that a reply target exists inside the same DM thread and return a safe id (or null). */
+async function resolveDmReplyId(appId, rawReplyToId) {
+  const replyToId = Number(rawReplyToId) || null;
+  if (!replyToId) return null;
+  const [rows] = await pool.query(
+    `SELECT 1 FROM dm_messages WHERE message_id = ? AND application_id = ?`,
+    [replyToId, appId]
+  );
+  return rows.length ? replyToId : null;
+}
+
 // ─── TEAM CHAT ────────────────────────────────────────────────────────────────
+
+const TEAM_SELECT = `
+  SELECT tm.team_message_id AS message_id,
+         tm.sender_id,
+         u.username,
+         u.profile_picture,
+         tm.content,
+         tm.is_deleted,
+         tm.sent_at,
+         tm.reply_to_id,
+         rm.content    AS reply_content,
+         rm.is_deleted AS reply_is_deleted,
+         ru.username   AS reply_username
+  FROM   team_messages tm
+  JOIN   users u  ON u.user_id = tm.sender_id
+  LEFT JOIN team_messages rm ON rm.team_message_id = tm.reply_to_id
+  LEFT JOIN users ru ON ru.user_id = rm.sender_id
+`;
 
 /** GET /api/chat/team/:teamId/messages?after=0&limit=50 */
 export const getTeamMessages = async (req, res, next) => {
@@ -72,14 +112,7 @@ export const getTeamMessages = async (req, res, next) => {
     if (Math.random() < 0.1) pruneOldMessages();
 
     const [rows] = await pool.query(
-      `SELECT tm.team_message_id AS message_id,
-              tm.sender_id,
-              u.username,
-              u.profile_picture,
-              tm.content,
-              tm.sent_at
-       FROM   team_messages tm
-       JOIN   users u ON u.user_id = tm.sender_id
+      `${TEAM_SELECT}
        WHERE  tm.team_id = ?
          AND  tm.team_message_id > ?
        ORDER  BY tm.team_message_id ASC
@@ -90,7 +123,7 @@ export const getTeamMessages = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/** POST /api/chat/team/:teamId/messages  { content } */
+/** POST /api/chat/team/:teamId/messages  { content, replyToId? } */
 export const sendTeamMessage = async (req, res, next) => {
   try {
     const teamId  = Number(req.params.teamId);
@@ -100,18 +133,42 @@ export const sendTeamMessage = async (req, res, next) => {
     if (!(await assertTeamMember(req.user.id, teamId)))
       return res.status(403).json({ success: false, message: "Not a team member" });
 
+    const replyToId = await resolveTeamReplyId(teamId, req.body.replyToId);
+
     const [result] = await pool.query(
-      `INSERT INTO team_messages (team_id, sender_id, content) VALUES (?,?,?)`,
-      [teamId, req.user.id, content]
+      `INSERT INTO team_messages (team_id, sender_id, reply_to_id, content) VALUES (?,?,?,?)`,
+      [teamId, req.user.id, replyToId, content]
     );
     const [rows] = await pool.query(
-      `SELECT tm.team_message_id AS message_id, tm.sender_id,
-              u.username, u.profile_picture, tm.content, tm.sent_at
-       FROM   team_messages tm JOIN users u ON u.user_id = tm.sender_id
-       WHERE  tm.team_message_id = ?`,
+      `${TEAM_SELECT} WHERE tm.team_message_id = ?`,
       [result.insertId]
     );
     res.json({ success: true, message: rows[0] });
+  } catch (err) { next(err); }
+};
+
+/** DELETE /api/chat/team/:teamId/messages/:messageId */
+export const deleteTeamMessage = async (req, res, next) => {
+  try {
+    const teamId    = Number(req.params.teamId);
+    const messageId = Number(req.params.messageId);
+
+    if (!(await assertTeamMember(req.user.id, teamId)))
+      return res.status(403).json({ success: false, message: "Not a team member" });
+
+    const [rows] = await pool.query(
+      `SELECT sender_id FROM team_messages WHERE team_message_id = ? AND team_id = ?`,
+      [messageId, teamId]
+    );
+    if (!rows.length) return res.status(404).json({ success: false, message: "Message not found" });
+    if (rows[0].sender_id !== req.user.id)
+      return res.status(403).json({ success: false, message: "You can only delete your own messages" });
+
+    await pool.query(
+      `UPDATE team_messages SET content = '', is_deleted = 1, deleted_at = NOW() WHERE team_message_id = ?`,
+      [messageId]
+    );
+    res.json({ success: true });
   } catch (err) { next(err); }
 };
 
@@ -133,6 +190,23 @@ export const markTeamRead = async (req, res, next) => {
 
 // ─── DM CHAT ──────────────────────────────────────────────────────────────────
 
+const DM_SELECT = `
+  SELECT dm.message_id, dm.sender_id,
+         u.username,
+         u.profile_picture,
+         dm.content,
+         dm.is_deleted,
+         dm.sent_at,
+         dm.reply_to_id,
+         rm.content    AS reply_content,
+         rm.is_deleted AS reply_is_deleted,
+         ru.username   AS reply_username
+  FROM   dm_messages dm
+  JOIN   users u ON u.user_id = dm.sender_id
+  LEFT JOIN dm_messages rm ON rm.message_id = dm.reply_to_id
+  LEFT JOIN users ru ON ru.user_id = rm.sender_id
+`;
+
 /** GET /api/chat/dm/:appId/messages?after=0&limit=50 */
 export const getDmMessages = async (req, res, next) => {
   try {
@@ -147,11 +221,7 @@ export const getDmMessages = async (req, res, next) => {
     if (Math.random() < 0.1) pruneOldMessages();
 
     const [rows] = await pool.query(
-      `SELECT dm.message_id, dm.sender_id,
-              u.username, u.profile_picture,
-              dm.content, dm.sent_at
-       FROM   dm_messages dm
-       JOIN   users u ON u.user_id = dm.sender_id
+      `${DM_SELECT}
        WHERE  dm.application_id = ?
          AND  dm.message_id > ?
        ORDER  BY dm.message_id ASC
@@ -162,7 +232,7 @@ export const getDmMessages = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/** POST /api/chat/dm/:appId/messages  { content } */
+/** POST /api/chat/dm/:appId/messages  { content, replyToId? } */
 export const sendDmMessage = async (req, res, next) => {
   try {
     const appId   = Number(req.params.appId);
@@ -172,18 +242,42 @@ export const sendDmMessage = async (req, res, next) => {
     const access = await getDmAccess(req.user.id, appId);
     if (!access) return res.status(403).json({ success: false, message: "Not authorised for this chat" });
 
+    const replyToId = await resolveDmReplyId(appId, req.body.replyToId);
+
     const [result] = await pool.query(
-      `INSERT INTO dm_messages (application_id, sender_id, content) VALUES (?,?,?)`,
-      [appId, req.user.id, content]
+      `INSERT INTO dm_messages (application_id, sender_id, reply_to_id, content) VALUES (?,?,?,?)`,
+      [appId, req.user.id, replyToId, content]
     );
     const [rows] = await pool.query(
-      `SELECT dm.message_id, dm.sender_id,
-              u.username, u.profile_picture, dm.content, dm.sent_at
-       FROM   dm_messages dm JOIN users u ON u.user_id = dm.sender_id
-       WHERE  dm.message_id = ?`,
+      `${DM_SELECT} WHERE dm.message_id = ?`,
       [result.insertId]
     );
     res.json({ success: true, message: rows[0] });
+  } catch (err) { next(err); }
+};
+
+/** DELETE /api/chat/dm/:appId/messages/:messageId */
+export const deleteDmMessage = async (req, res, next) => {
+  try {
+    const appId     = Number(req.params.appId);
+    const messageId = Number(req.params.messageId);
+
+    const access = await getDmAccess(req.user.id, appId);
+    if (!access) return res.status(403).json({ success: false, message: "Not authorised for this chat" });
+
+    const [rows] = await pool.query(
+      `SELECT sender_id FROM dm_messages WHERE message_id = ? AND application_id = ?`,
+      [messageId, appId]
+    );
+    if (!rows.length) return res.status(404).json({ success: false, message: "Message not found" });
+    if (rows[0].sender_id !== req.user.id)
+      return res.status(403).json({ success: false, message: "You can only delete your own messages" });
+
+    await pool.query(
+      `UPDATE dm_messages SET content = '', is_deleted = 1, deleted_at = NOW() WHERE message_id = ?`,
+      [messageId]
+    );
+    res.json({ success: true });
   } catch (err) { next(err); }
 };
 

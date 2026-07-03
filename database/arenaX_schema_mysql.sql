@@ -1369,3 +1369,35 @@ UPDATE community_posts
 SET image_urls = JSON_ARRAY(image_url)
 WHERE image_url IS NOT NULL
   AND image_urls IS NULL;
+
+
+-- =============================================================================
+-- MIGRATION: Message reply + delete (soft delete)
+-- Run ONCE in Hostinger phpMyAdmin. Safe to re-run — checks avoid duplicate errors
+-- only if you copy-paste carefully; if a column already exists MySQL will error,
+-- in which case just skip that one line.
+-- =============================================================================
+
+-- ── team_messages ────────────────────────────────────────────────────────────
+ALTER TABLE team_messages
+  ADD COLUMN reply_to_id INT NULL AFTER sender_id,
+  ADD COLUMN is_deleted  TINYINT(1) NOT NULL DEFAULT 0 AFTER content,
+  ADD COLUMN deleted_at  DATETIME NULL AFTER is_deleted;
+
+ALTER TABLE team_messages
+  ADD CONSTRAINT fk_tmsg_reply FOREIGN KEY (reply_to_id)
+      REFERENCES team_messages(team_message_id) ON DELETE SET NULL;
+
+CREATE INDEX idx_team_messages_reply ON team_messages(reply_to_id);
+
+-- ── dm_messages ──────────────────────────────────────────────────────────────
+ALTER TABLE dm_messages
+  ADD COLUMN reply_to_id INT NULL AFTER sender_id,
+  ADD COLUMN is_deleted  TINYINT(1) NOT NULL DEFAULT 0 AFTER content,
+  ADD COLUMN deleted_at  DATETIME NULL AFTER is_deleted;
+
+ALTER TABLE dm_messages
+  ADD CONSTRAINT fk_dmm_reply FOREIGN KEY (reply_to_id)
+      REFERENCES dm_messages(message_id) ON DELETE SET NULL;
+
+CREATE INDEX idx_dm_messages_reply ON dm_messages(reply_to_id);

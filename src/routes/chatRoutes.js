@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  getTeamMessages, sendTeamMessage, markTeamRead,
-  getDmMessages,   sendDmMessage,   markDmRead,
+  getTeamMessages, sendTeamMessage, deleteTeamMessage, markTeamRead,
+  getDmMessages,   sendDmMessage,   deleteDmMessage,   markDmRead,
   getUnreadCounts,
 } from "../controllers/chatController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -17,11 +17,13 @@ router.get("/unread", getUnreadCounts);
 // Team group chat
 router.get("/team/:teamId/messages", getTeamMessages);
 router.post("/team/:teamId/messages", sendTeamMessage);
+router.delete("/team/:teamId/messages/:messageId", deleteTeamMessage);
 router.put("/team/:teamId/read",     markTeamRead);
 
 // DM (draft-accept) chat
 router.get("/dm/:appId/messages", getDmMessages);
 router.post("/dm/:appId/messages", sendDmMessage);
+router.delete("/dm/:appId/messages/:messageId", deleteDmMessage);
 router.put("/dm/:appId/read",     markDmRead);
 
 export default router;

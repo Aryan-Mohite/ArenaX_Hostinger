@@ -7,8 +7,11 @@ export const getUnreadCounts = () => API.get('/chat/unread');
 export const getTeamMessages = (teamId, after = 0) =>
   API.get(`/chat/team/${teamId}/messages`, { params: { after } });
 
-export const sendTeamMessage = (teamId, content) =>
-  API.post(`/chat/team/${teamId}/messages`, { content });
+export const sendTeamMessage = (teamId, content, replyToId = null) =>
+  API.post(`/chat/team/${teamId}/messages`, { content, replyToId });
+
+export const deleteTeamMessage = (teamId, messageId) =>
+  API.delete(`/chat/team/${teamId}/messages/${messageId}`);
 
 export const markTeamRead = (teamId, lastMessageId) =>
   API.put(`/chat/team/${teamId}/read`, { lastMessageId });
@@ -17,8 +20,11 @@ export const markTeamRead = (teamId, lastMessageId) =>
 export const getDmMessages = (appId, after = 0) =>
   API.get(`/chat/dm/${appId}/messages`, { params: { after } });
 
-export const sendDmMessage = (appId, content) =>
-  API.post(`/chat/dm/${appId}/messages`, { content });
+export const sendDmMessage = (appId, content, replyToId = null) =>
+  API.post(`/chat/dm/${appId}/messages`, { content, replyToId });
+
+export const deleteDmMessage = (appId, messageId) =>
+  API.delete(`/chat/dm/${appId}/messages/${messageId}`);
 
 export const markDmRead = (appId, lastMessageId) =>
   API.put(`/chat/dm/${appId}/read`, { lastMessageId });

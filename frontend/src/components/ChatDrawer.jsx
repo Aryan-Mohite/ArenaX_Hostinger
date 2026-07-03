@@ -4,9 +4,11 @@ import { useChatContext } from "../context/ChatContext";
 import {
   getTeamMessages,
   sendTeamMessage,
+  deleteTeamMessage,
   markTeamRead,
   getDmMessages,
   sendDmMessage,
+  deleteDmMessage,
   markDmRead,
 } from "../services/chatService";
 
@@ -80,9 +82,24 @@ function Avatar({ username, picture, color, size = 8 }) {
  * isFirstInGroup  → show avatar + name above bubble
  * isLastInGroup   → show timestamp below bubble
  * isTeam          → team group chat (show sender names for others)
+ * isActive        → action row (Reply / Delete) is currently shown for this bubble
+ * onToggleActions → tapping the bubble shows/hides the action row
+ * onReply         → set this message as the one being replied to
+ * onDelete        → soft-delete this message (only ever called when isMine)
  */
-function Bubble({ msg, isMine, isFirstInGroup, isLastInGroup, isTeam }) {
+function Bubble({
+  msg,
+  isMine,
+  isFirstInGroup,
+  isLastInGroup,
+  isTeam,
+  isActive,
+  onToggleActions,
+  onReply,
+  onDelete,
+}) {
   const color = nameColor(msg.username);
+  const isDeleted = !!msg.is_deleted;
 
   return (
     <div
@@ -113,7 +130,8 @@ function Bubble({ msg, isMine, isFirstInGroup, isLastInGroup, isTeam }) {
         )}
 
         <div
-          className="px-3 py-2 text-sm leading-relaxed break-words"
+          onClick={() => !isDeleted && onToggleActions(msg.message_id)}
+          className="px-3 py-2 text-sm leading-relaxed break-words cursor-pointer select-none"
           style={{
             borderRadius: isMine
               ? isFirstInGroup
@@ -135,14 +153,71 @@ function Bubble({ msg, isMine, isFirstInGroup, isLastInGroup, isTeam }) {
                 }),
           }}
         >
-          {msg.content}
+          {/* Quoted reply preview */}
+          {msg.reply_to_id && (
+            <div
+              className="mb-1.5 pl-2 py-1 text-[11px] rounded"
+              style={{
+                borderLeft: `2.5px solid ${color}`,
+                background: "rgba(0,0,0,0.15)",
+              }}
+            >
+              <p className="font-semibold" style={{ color }}>
+                {msg.reply_username || "Unknown"}
+              </p>
+              <p className="opacity-70 truncate">
+                {msg.reply_is_deleted
+                  ? "This message was deleted"
+                  : msg.reply_content || "…"}
+              </p>
+            </div>
+          )}
+
+          {isDeleted ? (
+            <span className="italic opacity-50">🚫 This message was deleted</span>
+          ) : (
+            msg.content
+          )}
         </div>
 
         {/* Timestamp — only on the last bubble of a group */}
-        {isLastInGroup && (
+        {isLastInGroup && !isActive && (
           <span className="text-[9px] text-gray-600 px-1">
             {timeStr(msg.sent_at)}
           </span>
+        )}
+
+        {/* Action row — Reply / Delete, shown when the bubble is tapped */}
+        {isActive && !isDeleted && (
+          <div
+            className={`flex items-center gap-1 mt-0.5 ${isMine ? "flex-row-reverse" : ""}`}
+          >
+            <button
+              onClick={() => onReply(msg)}
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-colors"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                color: "#c9cdd6",
+              }}
+            >
+              ↩ Reply
+            </button>
+            {isMine && (
+              <button
+                onClick={() => onDelete(msg)}
+                className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-colors"
+                style={{
+                  background: "rgba(255,70,85,0.15)",
+                  color: "#ff8a94",
+                }}
+              >
+                🗑 Delete
+              </button>
+            )}
+            <span className="text-[9px] text-gray-600 px-1">
+              {timeStr(msg.sent_at)}
+            </span>
+          </div>
         )}
       </div>
     </div>
@@ -164,6 +239,35 @@ function RetentionBanner() {
         Messages older than <strong>{RETENTION_DAYS} days</strong> are
         automatically deleted to save space.
       </p>
+    </div>
+  );
+}
+
+// ─── Reply preview strip (shown above the input while composing a reply) ──────
+function ReplyPreview({ replyingTo, onCancel }) {
+  if (!replyingTo) return null;
+  return (
+    <div
+      className="mx-3 mb-2 px-3 py-2 rounded-xl flex items-start justify-between gap-2 shrink-0"
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        borderLeft: "3px solid #ff4655",
+      }}
+    >
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold" style={{ color: "#ff4655" }}>
+          Replying to {replyingTo.username}
+        </p>
+        <p className="text-[11px] text-gray-400 truncate">
+          {replyingTo.content}
+        </p>
+      </div>
+      <button
+        onClick={onCancel}
+        className="text-gray-500 hover:text-white shrink-0 text-sm leading-none"
+      >
+        ✕
+      </button>
     </div>
   );
 }
@@ -194,6 +298,8 @@ export default function ChatDrawer({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [activeActionId, setActiveActionId] = useState(null);
 
   const lastIdRef = useRef(0);
   const bottomRef = useRef(null);
@@ -218,7 +324,15 @@ export default function ChatDrawer({
         if (initial) {
           setMessages(msgs);
         } else {
-          setMessages((prev) => [...prev, ...msgs]);
+          setMessages((prev) => {
+            // Merge in edits (e.g. deletions) to already-seen messages, then
+            // append any brand-new ones.
+            const seen = new Map(prev.map((m) => [m.message_id, m]));
+            msgs.forEach((m) => seen.set(m.message_id, m));
+            return Array.from(seen.values()).sort(
+              (a, b) => a.message_id - b.message_id,
+            );
+          });
         }
 
         const newLast = msgs[msgs.length - 1].message_id;
@@ -246,6 +360,8 @@ export default function ChatDrawer({
     setLoading(true);
     setError(null);
     setInput("");
+    setReplyingTo(null);
+    setActiveActionId(null);
     lastIdRef.current = 0;
     isInitRef.current = false;
 
@@ -280,14 +396,16 @@ export default function ChatDrawer({
     if (!text || sending) return;
     setSending(true);
     setInput("");
+    const replyToId = replyingTo?.message_id || null;
     try {
       const res =
         chatType === "team"
-          ? await sendTeamMessage(chatId, text)
-          : await sendDmMessage(chatId, text);
+          ? await sendTeamMessage(chatId, text, replyToId)
+          : await sendDmMessage(chatId, text, replyToId);
       const msg = res.data.message;
       setMessages((prev) => [...prev, msg]);
       lastIdRef.current = msg.message_id;
+      setReplyingTo(null);
       if (chatType === "team")
         markTeamRead(chatId, msg.message_id).catch(() => {});
       else markDmRead(chatId, msg.message_id).catch(() => {});
@@ -302,6 +420,45 @@ export default function ChatDrawer({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  // ── Reply / Delete / action-row toggle ─────────────────────────────────────
+  const toggleActions = (messageId) => {
+    setActiveActionId((prev) => (prev === messageId ? null : messageId));
+  };
+
+  const handleReply = (msg) => {
+    setReplyingTo(msg);
+    setActiveActionId(null);
+    inputRef.current?.focus();
+  };
+
+  const handleDelete = async (msg) => {
+    setActiveActionId(null);
+    if (!window.confirm("Delete this message? This cannot be undone.")) return;
+
+    // Optimistic update
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.message_id === msg.message_id
+          ? { ...m, content: "", is_deleted: 1 }
+          : m,
+      ),
+    );
+    // Clear it as a reply target if it was selected
+    setReplyingTo((prev) =>
+      prev?.message_id === msg.message_id ? null : prev,
+    );
+
+    try {
+      if (chatType === "team") await deleteTeamMessage(chatId, msg.message_id);
+      else await deleteDmMessage(chatId, msg.message_id);
+    } catch {
+      // Revert on failure
+      setMessages((prev) =>
+        prev.map((m) => (m.message_id === msg.message_id ? msg : m)),
+      );
     }
   };
 
@@ -445,6 +602,10 @@ export default function ChatDrawer({
                   isFirstInGroup={msg.isFirstInGroup}
                   isLastInGroup={msg.isLastInGroup}
                   isTeam={isTeam}
+                  isActive={activeActionId === msg.message_id}
+                  onToggleActions={toggleActions}
+                  onReply={handleReply}
+                  onDelete={handleDelete}
                 />
               </div>
             );
@@ -454,6 +615,12 @@ export default function ChatDrawer({
 
         {/* ── Retention notice ───────────────────────────────────── */}
         <RetentionBanner />
+
+        {/* ── Reply preview ──────────────────────────────────────── */}
+        <ReplyPreview
+          replyingTo={replyingTo}
+          onCancel={() => setReplyingTo(null)}
+        />
 
         {/* ── Input ──────────────────────────────────────────────── */}
         <div
@@ -514,7 +681,7 @@ export default function ChatDrawer({
             </button>
           </div>
           <p className="text-[9px] text-gray-700 mt-1.5 px-1">
-            Enter to send · Shift+Enter for new line
+            Enter to send · Shift+Enter for new line · Tap a message for reply/delete
           </p>
         </div>
       </div>

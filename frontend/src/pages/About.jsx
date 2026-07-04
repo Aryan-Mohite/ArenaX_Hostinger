@@ -70,6 +70,15 @@ const TEAM = [
     instagram: "https://www.instagram.com/shivaay_xyz_07/",
     email: "shivaaymohite7@gmail.com",
   },
+  {
+    name: "Atharva Shrivastava",
+    role: "Collabrative Video Editor",
+    emoji: "🎥",
+    linkedin:
+      "https://www.linkedin.com/in/atharva-shrivastava-4a7266335?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    instagram: "",
+    email: "imatharva19@gmail.com",
+  },
 ];
 
 const VALUES = [

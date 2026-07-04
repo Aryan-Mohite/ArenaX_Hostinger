@@ -55,7 +55,7 @@ const TEAM = [
     email: "arenaxxtreme@gmail.com",
   },
   {
-    name: "Aditya",
+    name: "Aditya Suryawanshi",
     role: "Head of Product",
     emoji: "🚀",
     linkedin: "https://www.linkedin.com/in/aditya-suryavanshi-16b6a7409",
@@ -63,7 +63,7 @@ const TEAM = [
     email: "adiyasuryawanshi091@gmail.com",
   },
   {
-    name: "Aryan",
+    name: "Aryan Mohite",
     role: "Lead Engineer",
     emoji: "⚡",
     linkedin: "www.linkedin.com/in/aryan-mohite-068736315",

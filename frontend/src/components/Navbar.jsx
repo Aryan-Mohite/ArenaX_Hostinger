@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: "/teamfinder", label: "TeamUP Arena" },
   { to: "/stream", label: "Spectate" },
   { to: "/communities", label: "The Nexus" },
+  { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
 ];
 

@@ -1,32 +1,47 @@
-# Round 4 — FAQ + Blog + Home.jsx SEO fix
+# ArenaX SEO Fixes — Round 6
 
-## What's in this package
-Drop these files into the matching paths in your repo (overwrite existing ones), then commit/push and redeploy as usual.
+Target keywords for this round: **tournaments, team finder, esports tournaments, esports team finder**
 
-NEW files:
-- `frontend/src/pages/Faq.jsx` — FAQ page with accordion UI + FAQPage JSON-LD schema (10 Q&As)
-- `frontend/src/pages/Blog.jsx` — Blog listing page
-- `frontend/src/pages/BlogPost.jsx` — Blog post detail page + BlogPosting JSON-LD schema
-- `frontend/src/data/blogPosts.js` — Static blog content (4 starter posts, edit/add freely)
+Build verified: `npm run build` completes clean with no errors after these changes.
 
-MODIFIED files:
-- `frontend/src/App.jsx` — added routes: `/faq`, `/blog`, `/blog/:slug`
-- `frontend/src/components/Footer.jsx` — added Blog/FAQ links next to Terms/Privacy
-- `frontend/src/components/SEO.jsx` — added optional `jsonLd` prop so any page can inject structured data
-- `frontend/src/pages/Home.jsx` — was missing `<SEO />` entirely; now has explicit title/description/canonical
-- `src/app.js` — sitemap.xml now includes `/faq`, `/blog`, and all 4 blog post URLs
+## Files changed (7)
 
-## Deploy steps
-1. Copy these files over their counterparts in `ArenaX_Hostinger/`.
-2. `cd frontend && npm install && npm run build` (already verified clean — 142 modules, no errors).
-3. Restart/redeploy the Express backend (`src/app.js` changed — sitemap route).
-4. Verify:
-   - `https://arenax.io/faq` and `https://arenax.io/blog` load and have correct `<title>`/meta in page source
-   - `https://arenax.io/sitemap.xml` includes the new URLs
-   - Run the homepage through SEOptimer/Google Rich Results Test to confirm `FAQPage` schema validates
+### 1. `frontend/src/components/Navbar.jsx`
+Added "Blog" to the main navigation (`NAV_LINKS`). Previously Blog was only linked from the footer, meaning your only long-tail-keyword content type had the weakest internal-link placement on the site.
 
-## Notes
-- Blog content is static (no DB/CMS) — to add a new post: append an object to `blogPosts.js`, then add its `slug` to the `BLOG_SLUGS` array near the top of the sitemap route in `src/app.js` so it gets indexed. Both files have comments pointing this out.
-- FAQ content lives directly in `Faq.jsx` (`FAQS` array) — easy to edit without touching layout code.
-- Neither page was added to the main Navbar (kept at 7 links to avoid clutter) — both are linked from the Footer instead. Say the word if you'd rather have them in the Navbar too.
-- This does NOT fix the CSR/prerendering gap — that's still the top-priority structural item from before. FAQ/Blog content helps regardless, but Googlebot will still need either prerender.io or SSR to reliably index the rest of the SPA.
+### 2. `frontend/public/robots.txt`
+Removed the `Disallow: /` rule for GPTBot. It was fully blocking OpenAI's crawler while your GEO work (llms.txt route, noscript block) was specifically aimed at AI-search visibility — the two were contradicting each other.
+
+### 3. `frontend/index.html`
+- Rewrote the base `<meta name="description">`, `og:description`, and `twitter:description` to explicitly include "esports tournaments" and "team finder" (previously said "tournaments" and "build teams" — close but not the exact target phrases).
+- Reordered `<meta name="keywords">` so the four priority keywords (esports tournaments, team finder, esports team finder, esports platform) lead the list.
+- Rewrote the `<noscript>` GEO block's two headings/paragraphs ("Esports Tournaments" / "Esports Team Finder") to use the exact target phrases instead of paraphrases, since this is the primary content AI crawlers and non-JS bots actually see given the CSR architecture.
+
+### 4. `frontend/src/pages/Home.jsx`
+Homepage `<SEO>` description updated to include "esports tournaments" and "team finder" explicitly. Title (the brand tagline) left untouched — matches your stated preference for brand voice over keyword-stuffing, and the title tag is lower-leverage for these particular phrases than the description and H-tags are.
+
+### 5. `frontend/src/pages/Tournament.jsx`
+Tournament list page (`/tournament`):
+- Title: `"Esports Tournaments — Valorant, CS2 & FPS Tournaments"` (was `"Valorant & FPS Tournaments"` — didn't contain "esports tournaments" or plain "tournaments" as a standalone phrase)
+- Description rewritten to lead with "esports tournaments" and name all 6 supported games
+- Added `BreadcrumbList` JSON-LD schema (Home → Tournaments) via `SEO.jsx`'s existing `jsonLd` prop
+
+### 6. `frontend/src/pages/TeamFinder.jsx`
+Team Finder page (`/teamfinder`):
+- Title: `"Esports Team Finder — Find Teammates for Valorant, CS2 & More"` (was missing the "esports team finder" phrase)
+- Description rewritten to lead with "esports team finder"
+- Added `BreadcrumbList` JSON-LD schema (Home → Team Finder)
+
+### 7. `frontend/src/pages/admin/AdminDashboard.jsx`
+Added a missing `alt` attribute on a user-avatar `<img>` (found via a full codebase scan — this was the only genuinely missing `alt` in the entire frontend; everything else already had one, contrary to what a quick grep suggested). Low SEO impact since this page sits behind auth and is disallowed in robots.txt, but it's a real accessibility gap so it's fixed anyway.
+
+## What this does NOT fix (still open — see the audit report)
+
+- **Only 4 blog posts.** Nav placement is fixed; volume is a content problem, not a code problem. Recommended next-6-posts list is in the audit report, all chosen to reinforce "tournaments"/"team finder" and their long-tail variants.
+- **CSR/prerendering gap.** The noscript block is now more keyword-aligned, but it's still a static hand-written summary, not real rendered content. Needs prerender.io middleware or an SSR migration to fully close.
+- **Zero backlinks.** Unchanged — needs outreach/content marketing, not a code fix.
+- **Per-game landing pages** (e.g. `/games/valorant`) — the single biggest untapped keyword surface for these exact target terms ("valorant esports tournaments," "cs2 team finder," etc.). Scoped as a Round 7 candidate in the audit, not built yet — would meaningfully multiply how many keyword variants you can rank for.
+
+## Deploy notes
+
+Files mirror the repo structure exactly — copy each into place at the matching path and redeploy. Run `npm run build` in `frontend/` before deploying to confirm it's still clean in your environment (verified clean here).

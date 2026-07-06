@@ -1450,9 +1450,17 @@ export default function TeamFinder() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
       <SEO
-        title="Find Teammates for Valorant & FPS Games"
-        description="Use ArenaX Team Finder to find skilled teammates for Valorant, CS2, and other FPS games. Match by rank, playstyle, and availability."
+        title="Esports Team Finder — Find Teammates for Valorant, CS2 & More"
+        description="ArenaX Team Finder helps you find esports teammates fast. Match by game, rank, role, and availability across Valorant, CS2, League of Legends, and more — free team finder for competitive players."
         path="/teamfinder"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://arenax.io/" },
+            { "@type": "ListItem", position: 2, name: "Team Finder", item: "https://arenax.io/teamfinder" },
+          ],
+        }}
       />
       {toast.msg && (
         <div

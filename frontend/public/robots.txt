@@ -6,7 +6,4 @@ Disallow: /admin/
 Allow: /*.css$
 Allow: /*.js$
 
-User-agent: GPTBot
-Disallow: /
-
 Sitemap: https://arenax.io/sitemap.xml

@@ -169,7 +169,7 @@ export default function Home() {
           tags. Explicit is better than implicit here. */}
       <SEO
         title="ArenaX — Compete. Conquer. Connect. — Prove It"
-        description="ArenaX is the all-in-one esports platform for competitive FPS players — join free tournaments, build teams, watch live streams, track your stats."
+        description="ArenaX is the all-in-one esports platform for competitive FPS players — join free esports tournaments, use our team finder to build your squad, watch live streams, and track your stats."
         path="/"
       />
       {/* ══════════════════════════════════════════════════════

@@ -1197,9 +1197,17 @@ function TournamentList() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
       <SEO
-        title="Valorant & FPS Tournaments"
-        description="Join Valorant, CS2, and FPS tournaments on ArenaX. Compete against players worldwide, win prizes, and track your rank — all in one platform."
+        title="Esports Tournaments — Valorant, CS2 & FPS Tournaments"
+        description="Join free esports tournaments on ArenaX — Valorant, CS2, League of Legends, Fortnite, Dota 2, and Apex Legends. Compete in online tournaments worldwide, win prizes, and track your rank."
         path="/tournament"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://arenax.io/" },
+            { "@type": "ListItem", position: 2, name: "Tournaments", item: "https://arenax.io/tournament" },
+          ],
+        }}
       />
       {/* Toast */}
       {toast && (

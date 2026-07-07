@@ -14,7 +14,7 @@ import { Helmet } from "react-helmet-async";
 export default function SEO({ title, description, path = "", image, jsonLd }) {
   const fullTitle = title
     ? `${title} | ArenaX`
-    : "ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX";
+    : "ArenaX — Free Esports Tournaments & Team Finder Platform";
 
   const desc =
     description ||

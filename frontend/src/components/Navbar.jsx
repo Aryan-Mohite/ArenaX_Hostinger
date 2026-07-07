@@ -11,8 +11,8 @@ const NAV_LINKS = [
   { to: "/stream", label: "Spectate" },
   { to: "/communities", label: "The Nexus" },
   { to: "/blog", label: "Blog" },
-  { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
+  { to: "/about", label: "About" },
 ];
 
 /* ── Moon icon (dark mode) ── */

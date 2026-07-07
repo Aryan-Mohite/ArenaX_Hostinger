@@ -217,7 +217,7 @@ app.get("/llms.txt", (_req, res) => {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.send(
-`# ArenaX — Compete. Conquer. Connect.
+`# ArenaX — Free Esports Tournaments & Team Finder Platform
 > ArenaX (https://arenax.io) is a free, all-in-one esports platform for competitive FPS players. Players can find and enter free tournaments, build and manage teams, watch live streams, and connect with the gaming community — all in one place.
 
 ## Site Overview

@@ -168,7 +168,7 @@ export default function Home() {
           index.html change could leave the homepage without page-specific
           tags. Explicit is better than implicit here. */}
       <SEO
-        title="ArenaX — Compete. Conquer. Connect. — Prove It"
+        title="ArenaX — Free Esports Tournaments & Team Finder Platform"
         description="ArenaX is the all-in-one esports platform for competitive FPS players — join free esports tournaments, use our team finder to build your squad, watch live streams, and track your stats."
         path="/"
       />
@@ -247,8 +247,9 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-sm text-gray-400">
-                  Join Now <span className="text-white font-semibold"> 1K+</span>{" "}
-                  players already competing
+                  Join Now{" "}
+                  <span className="text-white font-semibold"> 1K+</span> players
+                  already competing
                 </p>
               </div>
             </div>

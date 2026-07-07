@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: "/communities", label: "The Nexus" },
   { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
+  { to: "/faq", label: "FAQ" },
 ];
 
 /* ── Moon icon (dark mode) ── */

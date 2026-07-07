@@ -93,6 +93,53 @@ Click **Create** / **Save**, then click **Start** (or Restart if already running
 
 ---
 
+## SEO: Prerendering with react-snap (do this on YOUR machine, not Hostinger)
+
+ArenaX is a client-rendered React app. Per-page titles, meta descriptions, and
+JSON-LD (via `<SEO>`/react-helmet-async) only exist after JavaScript runs —
+crawlers that don't wait for that see generic/empty content on every page
+except the homepage. `react-snap` fixes this by rendering each route to real
+static HTML at build time, using headless Chromium (Puppeteer).
+
+**Run this locally, not as part of Hostinger's `npm install`/`postinstall`.**
+Puppeteer needs to download a ~100MB Chromium binary, and headless Chrome
+needs system libraries (libnss3, libatk, etc.) that most shared/Node.js
+hosting plans — including Hostinger's — don't reliably provide. Trying to run
+it inside Hostinger's build step risks silently breaking every deploy.
+
+### Steps
+
+1. On your own machine (not Hostinger), pull the latest code and install:
+   ```bash
+   cd frontend
+   npm install
+   ```
+2. Build normally, then prerender:
+   ```bash
+   npm run build
+   npm run prerender
+   ```
+   This overwrites `frontend/dist/*.html` for each route listed in the
+   `reactSnap.include` array in `frontend/package.json` with fully-rendered
+   static HTML — real `<title>`, `<meta description>`, canonical, and JSON-LD
+   already baked in, no JS execution required to see them.
+3. Upload the resulting `frontend/dist/` folder to Hostinger yourself
+   (instead of letting `postinstall` rebuild it), OR run steps 1–2 in a CI
+   pipeline (GitHub Actions has full Chromium support) and have CI upload
+   `dist/` to Hostinger as a deploy artifact.
+4. Verify: open a prerendered page's HTML source directly (not dev tools —
+   actual "View Page Source") and confirm the real title/description show up
+   without running any JS.
+
+### Keeping the route list current
+
+`reactSnap.include` in `frontend/package.json` only lists static routes. When
+you add a new blog post, add its `/blog/:slug` path there too (same manual
+sync step as `BLOG_SLUGS` in `src/app.js`). Individual `/tournament/:id`
+pages are intentionally left out of prerendering — they're DB-driven and
+already covered by the dynamic sitemap; the homepage/listing pages carry the
+keyword-targeting weight.
+
 ## Local Development
 
 ```bash

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prerender": "react-snap"
   },
   "dependencies": {
     "axios": "^1.7.2",
@@ -19,5 +20,35 @@
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "vite": "^5.4.0"
+  },
+  "devDependencies": {
+    "react-snap": "^1.23.0"
+  },
+  "reactSnap": {
+    "source": "dist",
+    "minifyHtml": {
+      "collapseWhitespace": false,
+      "removeComments": true
+    },
+    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "include": [
+      "/",
+      "/games",
+      "/tournament",
+      "/teamfinder",
+      "/communities",
+      "/stream",
+      "/about",
+      "/faq",
+      "/blog",
+      "/blog/how-to-join-valorant-tournaments-online",
+      "/blog/finding-the-right-teammates-fps-games",
+      "/blog/building-a-streaming-setup-on-a-budget",
+      "/blog/understanding-tournament-formats-explained",
+      "/terms",
+      "/privacy",
+      "/login",
+      "/register"
+    ]
   }
 }

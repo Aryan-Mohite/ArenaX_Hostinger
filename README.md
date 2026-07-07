@@ -1,47 +1,68 @@
-# ArenaX — Site Title Update
+# ArenaX — Round 7: react-snap prerendering fix
 
-**New title:** `ArenaX — Free Esports Tournaments & Team Finder Platform`
+## What this fixes
 
-This package updates the site title everywhere it's rendered for SEO/search
-and social sharing. Old title being replaced:
-`ArenaX — Compete. Conquer. Connect. — Prove It | ArenaX`
+Real Search Console data showed only 5 of your ~17 live routes have ever had
+a Google impression — /tournament, /teamfinder, /games, /stream,
+/communities, and /faq have none. Root cause, confirmed in your code: React
+Helmet only injects per-page title/description/canonical/JSON-LD *after* the
+JS bundle hydrates (`main.jsx` used `createRoot`, no SSR). Google's fast
+first-pass crawl sees generic homepage metadata on every URL.
 
-## Files changed (paths mirror the repo)
+This patch adds prerendering so each route ships with its real, final HTML
+already in place — no JS execution needed to see it.
 
-### `frontend/index.html`
-- `<title>` tag
-- `og:title` meta tag
-- `twitter:title` meta tag
+## Files in this package (3 changed, repo-mirrored paths)
 
-(The static `<!-- FIX 1 -->` comment mentioning the old title was left as-is —
-it's just a historical code comment, not rendered content. The og:image:alt
-text and the `<h1>` inside the `<noscript>` GEO/LLM block still use the
-brand tagline "ArenaX — Compete. Conquer. Connect." since that's brand
-voice/tagline copy, not the page title — let me know if you want those
-changed too.)
+- `frontend/src/main.jsx` — switched to `hydrateRoot` when prerendered
+  content exists in `#root`, falls back to `createRoot` otherwise. No
+  behavior change for regular users; matters only for prerendered pages.
+- `frontend/package.json` — added `react-snap` as a devDependency, a
+  `prerender` script, and a `reactSnap` config block listing every static
+  route to prerender (all your public pages + all 4 blog posts).
+- `DEPLOY_HOSTINGER.md` — new section explaining exactly how and where to
+  run the prerender step, and why.
 
-### `frontend/src/components/SEO.jsx`
-- Updated the fallback/default title used by every page that doesn't pass
-  an explicit `title` prop to `<SEO />`. This is the single source of truth
-  for the default title across the whole SPA.
+## What I verified myself
 
-### `frontend/src/pages/Home.jsx`
-- Removed the homepage's explicit `title` override on `<SEO />` so it now
-  inherits the new default title from `SEO.jsx` instead of carrying a
-  duplicate hardcoded copy of the old title.
+- `npm run build` still completes cleanly with the `main.jsx` change — no
+  regressions, same chunk output as before.
+- Confirmed react-snap actually requires downloading real Chromium via
+  Puppeteer, and that this download is blocked in my own sandboxed
+  environment (`storage.googleapis.com` 403). I could not run the prerender
+  step itself here.
 
-### `frontend/public/manifest.json`
-- Updated the PWA `name` field (shown when the site is installed to a
-  home screen) to match the new title.
+## Important: run `npm run prerender` on your own machine, not Hostinger
 
-### `src/app.js`
-- Updated the `# ArenaX — ...` heading in the `/llms.txt` route (the
-  GEO/AI-crawler summary file) to match the new title.
+This isn't a shortcut — it's a real constraint. Puppeteer downloads a ~100MB
+Chromium binary and needs system libraries (libnss3, libatk, etc.) that most
+shared Node.js hosting, including Hostinger's, doesn't reliably provide.
+Wiring `react-snap` into Hostinger's own `postinstall`/build step risks a
+silent failure on every future deploy. Instead:
 
-## Verified
-- `npm run build` in `frontend/` completed successfully with no errors.
-- `manifest.json` validated as well-formed JSON.
+```bash
+cd frontend
+npm install
+npm run build
+npm run prerender
+```
 
-## Deploy
-Copy these files into their matching paths in your repo, overwriting the
-existing versions, then redeploy as usual on Hostinger.
+Then upload the resulting `frontend/dist/` folder to Hostinger yourself
+(don't let Hostinger's `postinstall` rebuild over it), or better: run these
+same 3 commands in a GitHub Actions workflow (full Chromium support there)
+and have CI push `dist/` to Hostinger as a deploy artifact. Full details are
+in the updated `DEPLOY_HOSTINGER.md`.
+
+## After deploying
+
+Open a prerendered page's actual page source (not dev tools — "View Page
+Source") for something like `/tournament` and confirm the title tag and
+meta description are the real per-page ones, not the generic homepage
+defaults, before any JS runs.
+
+## Not included in this round
+
+- `/tournament/:id` pages are intentionally left out of prerendering — they're
+  DB-driven, react-snap can't discover them, and they're already covered by
+  your dynamic sitemap.
+- Backlinks/domain authority — still the other open item, not a code fix.

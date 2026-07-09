@@ -93,7 +93,7 @@ Click **Create** / **Save**, then click **Start** (or Restart if already running
 
 ---
 
-## SEO: Prerendering with react-snap (do this on YOUR machine, not Hostinger)
+## SEO: Prerendering with react-snap (automated via GitHub Actions)
 
 ArenaX is a client-rendered React app. Per-page titles, meta descriptions, and
 JSON-LD (via `<SEO>`/react-helmet-async) only exist after JavaScript runs —
@@ -101,35 +101,36 @@ crawlers that don't wait for that see generic/empty content on every page
 except the homepage. `react-snap` fixes this by rendering each route to real
 static HTML at build time, using headless Chromium (Puppeteer).
 
-**Run this locally, not as part of Hostinger's `npm install`/`postinstall`.**
-Puppeteer needs to download a ~100MB Chromium binary, and headless Chrome
-needs system libraries (libnss3, libatk, etc.) that most shared/Node.js
-hosting plans — including Hostinger's — don't reliably provide. Trying to run
-it inside Hostinger's build step risks silently breaking every deploy.
+Since deploy here is **GitHub push → Hostinger auto-deploy** (no manual
+upload step), prerendering runs in **GitHub Actions** instead of locally or
+on Hostinger — see `.github/workflows/prerender-deploy.yml`. Puppeteer needs
+system libraries (libnss3, libatk, etc.) that Hostinger's Node build
+environment doesn't reliably provide, but GitHub's `ubuntu-latest` runners
+have full Chromium support out of the box.
 
-### Steps
+### How it works
 
-1. On your own machine (not Hostinger), pull the latest code and install:
-   ```bash
-   cd frontend
-   npm install
-   ```
-2. Build normally, then prerender:
-   ```bash
-   npm run build
-   npm run prerender
-   ```
-   This overwrites `frontend/dist/*.html` for each route listed in the
-   `reactSnap.include` array in `frontend/package.json` with fully-rendered
-   static HTML — real `<title>`, `<meta description>`, canonical, and JSON-LD
-   already baked in, no JS execution required to see them.
-3. Upload the resulting `frontend/dist/` folder to Hostinger yourself
-   (instead of letting `postinstall` rebuild it), OR run steps 1–2 in a CI
-   pipeline (GitHub Actions has full Chromium support) and have CI upload
-   `dist/` to Hostinger as a deploy artifact.
-4. Verify: open a prerendered page's HTML source directly (not dev tools —
-   actual "View Page Source") and confirm the real title/description show up
-   without running any JS.
+1. You push source changes to `main` as usual.
+2. GitHub Actions builds the frontend, runs `npm run prerender`, and commits
+   the resulting `frontend/dist/` (real static HTML per route, from
+   `reactSnap.include` in `frontend/package.json`) back to `main`.
+3. That commit triggers Hostinger's auto-deploy again. `scripts/build-frontend.js`
+   detects the prerendered dist is already present and skips rebuilding it,
+   so Hostinger just serves the prerendered files as-is.
+
+No manual steps required after the one-time setup (enable "Read and write
+permissions" for Actions under repo Settings → Actions → General — see
+`README_PRERENDER_FIX.md`).
+
+### Verify it worked
+
+Open a page's raw HTML source directly (View Page Source, not dev tools —
+dev tools shows the post-JS DOM either way) and confirm the real
+title/description/JSON-LD are present without running any JS:
+
+```bash
+curl -s https://arenax.io/tournament | grep -o '<title>.*</title>'
+```
 
 ### Keeping the route list current
 

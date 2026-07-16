@@ -12,6 +12,7 @@ import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
 import TeamIdBadge from "../components/TeamIdBadge";
 import { GameIdsDisplay } from "./Profile";
+import { getKarmaBadge } from "../utils/karma";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const timeAgo = (d) => {
@@ -570,6 +571,14 @@ export default function UserProfile() {
                   <h1 className="font-display font-bold text-3xl text-white leading-tight">
                     {profile?.username}
                   </h1>
+                  {(() => {
+                    const badge = getKarmaBadge(profile?.karma_positive, profile?.karma_negative);
+                    return badge ? (
+                      <p className="text-xs font-semibold mt-1" style={{ color: "#4ade80" }}>
+                        {badge.icon} {badge.label}
+                      </p>
+                    ) : null;
+                  })()}
                   <div className="flex flex-wrap gap-2 mt-1.5">
                     {profile?.country && (
                       <span className="text-xs text-gray-500">

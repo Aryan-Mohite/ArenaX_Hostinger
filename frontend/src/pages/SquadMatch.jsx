@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getMyDna, saveMyDna, getCandidates, swipeUser, getMyMatches } from "../services/gamerDnaService";
+import { getMyDna, saveMyDna, getCandidates, swipeUser, getMyMatches, rateTeammate } from "../services/gamerDnaService";
+import { getKarmaBadge, getKarmaSummary } from "../utils/karma";
 import { PageLoader, EmptyState, ErrorMessage, PageHeader } from "../components/UI";
 import ChatDrawer from "../components/ChatDrawer";
 import SEO from "../components/SEO";
@@ -116,6 +117,16 @@ function SwipeCard({ candidate, onLike, onPass, exiting }) {
         </div>
         <p className="font-display font-bold text-white text-xl">{candidate.username}</p>
         {candidate.region && <p className="text-xs text-gray-500 mt-0.5">{candidate.region}</p>}
+        {(() => {
+          const badge = getKarmaBadge(candidate.karma_positive, candidate.karma_negative);
+          const summary = getKarmaSummary(candidate.karma_positive, candidate.karma_negative);
+          if (!summary) return null;
+          return (
+            <p className="text-xs mt-1" style={{ color: badge ? "#4ade80" : "var(--text-secondary, #9ca3af)" }}>
+              {badge ? `${badge.icon} ${badge.label} · ` : ""}{summary}
+            </p>
+          );
+        })()}
         {candidate.bio && <p className="text-sm text-gray-400 mt-3 line-clamp-2">{candidate.bio}</p>}
       </div>
 
@@ -167,33 +178,86 @@ function MatchToast({ match, onOpenChat, onDismiss }) {
 }
 
 // ─── Matches list ────────────────────────────────────────────────────────────
-function MatchesPanel({ matches, onOpenChat }) {
+function MatchCard({ match, onOpenChat, onRated }) {
+  const [rating, setRating] = useState(match.my_rating); // null | 'positive' | 'negative'
+  const [busy, setBusy] = useState(false);
+
+  const handleRate = async (e, score) => {
+    e.stopPropagation();
+    if (busy || rating === score) return;
+    setBusy(true);
+    const prev = rating;
+    setRating(score); // optimistic
+    try {
+      await rateTeammate(match.match_id, score);
+      onRated?.(match.match_id, score);
+    } catch {
+      setRating(prev);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="card-hover text-left">
+      <button onClick={() => onOpenChat(match)} className="w-full flex items-center gap-3 text-left">
+        <div
+          className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0"
+          style={{ background: "rgba(255,70,85,0.12)", border: "1.5px solid rgba(255,70,85,0.3)", color: "#ff6b77" }}
+        >
+          {match.profile_picture ? (
+            <img src={match.profile_picture} alt={match.username} className="w-full h-full object-cover" />
+          ) : (
+            match.username?.[0]?.toUpperCase()
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-white text-sm truncate">{match.username}</p>
+          <p className="text-xs text-gray-500">{match.region || "Matched"}</p>
+        </div>
+      </button>
+
+      <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: "var(--border-color)" }}>
+        <span className="text-xs text-gray-500">{rating ? "Thanks for the feedback" : "Played together?"}</span>
+        <div className="flex gap-1.5">
+          <button
+            onClick={(e) => handleRate(e, "positive")}
+            disabled={busy}
+            title="Good teammate"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-sm transition-all"
+            style={{
+              background: rating === "positive" ? "rgba(74,222,128,0.2)" : "rgba(255,255,255,0.05)",
+              border: rating === "positive" ? "1px solid #4ade80" : "1px solid var(--border-color)",
+            }}
+          >
+            👍
+          </button>
+          <button
+            onClick={(e) => handleRate(e, "negative")}
+            disabled={busy}
+            title="Not a great fit"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-sm transition-all"
+            style={{
+              background: rating === "negative" ? "rgba(156,163,175,0.2)" : "rgba(255,255,255,0.05)",
+              border: rating === "negative" ? "1px solid #9ca3af" : "1px solid var(--border-color)",
+            }}
+          >
+            👎
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MatchesPanel({ matches, onOpenChat, onRated }) {
   if (matches.length === 0) {
     return <EmptyState icon="🤝" title="No matches yet" subtitle="Like a few candidates to start finding squadmates." />;
   }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {matches.map((m) => (
-        <button
-          key={m.match_id}
-          onClick={() => onOpenChat(m)}
-          className="card-hover flex items-center gap-3 text-left"
-        >
-          <div
-            className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ background: "rgba(255,70,85,0.12)", border: "1.5px solid rgba(255,70,85,0.3)", color: "#ff6b77" }}
-          >
-            {m.profile_picture ? (
-              <img src={m.profile_picture} alt={m.username} className="w-full h-full object-cover" />
-            ) : (
-              m.username?.[0]?.toUpperCase()
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="font-semibold text-white text-sm truncate">{m.username}</p>
-            <p className="text-xs text-gray-500">{m.region || "Matched"}</p>
-          </div>
-        </button>
+        <MatchCard key={m.match_id} match={m} onOpenChat={onOpenChat} onRated={onRated} />
       ))}
     </div>
   );
@@ -329,7 +393,9 @@ export default function SquadMatch() {
             )
           )}
 
-          {tab === "matches" && <MatchesPanel matches={matches} onOpenChat={openChatForMatch} />}
+          {tab === "matches" && (
+            <MatchesPanel matches={matches} onOpenChat={openChatForMatch} onRated={() => loadMatches()} />
+          )}
         </>
       )}
 

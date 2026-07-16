@@ -2,6 +2,7 @@ import { Router } from "express";
 import { body } from "express-validator";
 import {
   saveMyDna, getMyDna, getCandidates, swipe, getMyMatches,
+  rateTeammate, getMatchRating,
 } from "../controllers/gamerDnaController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import validate from "../middleware/validateMiddleware.js";
@@ -27,5 +28,12 @@ router.post("/",           validateDna,   validate, saveMyDna);
 router.get("/candidates",  getCandidates);
 router.post("/swipe",      validateSwipe, validate, swipe);
 router.get("/matches",     getMyMatches);
+
+const validateRating = [
+  body("score").isIn(["positive", "negative"]),
+  body("tag").optional({ nullable: true }).isIn(["good_comms", "team_player", "reliable", "carried_us"]),
+];
+router.post("/matches/:matchId/rate",   validateRating, validate, rateTeammate);
+router.get("/matches/:matchId/rating",  getMatchRating);
 
 export default router;

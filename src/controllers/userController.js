@@ -7,7 +7,8 @@ export const getUserProfile = async (req, res, next) => {
     const { id } = req.params;
 
     const [userRows] = await pool.query(
-      `SELECT user_id, username, profile_picture, country, region, bio, created_at
+      `SELECT user_id, username, profile_picture, country, region, bio, created_at,
+              karma_positive, karma_negative
        FROM users WHERE user_id = ? AND status = 'active'`,
       [id]
     );

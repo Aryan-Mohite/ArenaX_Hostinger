@@ -20,6 +20,7 @@ import matchRoutes      from "./routes/matchRoutes.js";
 import archiveRoutes    from "./routes/archiveRoutes.js";
 import adminRoutes      from "./routes/adminRoutes.js";
 import chatRoutes       from "./routes/chatRoutes.js";
+import gamerDnaRoutes   from "./routes/gamerDnaRoutes.js";
 
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
@@ -394,6 +395,7 @@ app.use("/api/matches",     matchRoutes);
 app.use("/api/archive",     archiveRoutes);
 app.use("/api/admin",       adminRoutes);
 app.use("/api/chat",        chatRoutes);
+app.use("/api/gamer-dna",   gamerDnaRoutes);
 
 // ─── SERVE REACT FRONTEND (SPA) ───────────────────────────────────────────────
 // Serves the Vite-built React app for all non-API routes.

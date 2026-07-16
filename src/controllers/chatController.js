@@ -20,6 +20,10 @@ async function pruneOldMessages() {
       `DELETE FROM dm_messages WHERE sent_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
       [RETENTION_DAYS]
     );
+    await pool.query(
+      `DELETE FROM swipe_messages WHERE sent_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
+      [RETENTION_DAYS]
+    );
   } catch (_) {
     // Silent — pruning is non-critical
   }
@@ -74,6 +78,32 @@ async function resolveDmReplyId(appId, rawReplyToId) {
   const [rows] = await pool.query(
     `SELECT 1 FROM dm_messages WHERE message_id = ? AND application_id = ?`,
     [replyToId, appId]
+  );
+  return rows.length ? replyToId : null;
+}
+
+/**
+ * Verify the user is one of the two matched users for a swipe_match.
+ * Returns the match row or null if unauthorised / match doesn't exist.
+ */
+async function getSwipeAccess(userId, matchId) {
+  const [rows] = await pool.query(
+    `SELECT match_id, user_a_id, user_b_id FROM swipe_matches WHERE match_id = ?`,
+    [matchId]
+  );
+  if (!rows.length) return null;
+  const match = rows[0];
+  if (match.user_a_id !== userId && match.user_b_id !== userId) return null;
+  return match;
+}
+
+/** Validate that a reply target exists inside the same swipe-match thread and return a safe id (or null). */
+async function resolveSwipeReplyId(matchId, rawReplyToId) {
+  const replyToId = Number(rawReplyToId) || null;
+  if (!replyToId) return null;
+  const [rows] = await pool.query(
+    `SELECT 1 FROM swipe_messages WHERE message_id = ? AND match_id = ?`,
+    [replyToId, matchId]
   );
   return rows.length ? replyToId : null;
 }
@@ -297,6 +327,114 @@ export const markDmRead = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ─── SWIPE-MATCH CHAT ─────────────────────────────────────────────────────────
+
+const SWIPE_SELECT = `
+  SELECT sm.message_id, sm.sender_id,
+         u.username,
+         u.profile_picture,
+         sm.content,
+         sm.is_deleted,
+         sm.sent_at,
+         sm.reply_to_id,
+         rm.content    AS reply_content,
+         rm.is_deleted AS reply_is_deleted,
+         ru.username   AS reply_username
+  FROM   swipe_messages sm
+  JOIN   users u ON u.user_id = sm.sender_id
+  LEFT JOIN swipe_messages rm ON rm.message_id = sm.reply_to_id
+  LEFT JOIN users ru ON ru.user_id = rm.sender_id
+`;
+
+/** GET /api/chat/swipe/:matchId/messages?after=0&limit=50 */
+export const getSwipeMessages = async (req, res, next) => {
+  try {
+    const matchId = Number(req.params.matchId);
+    const after   = Number(req.query.after  || 0);
+    const limit   = Math.min(Number(req.query.limit || 50), 100);
+
+    if (!(await getSwipeAccess(req.user.id, matchId)))
+      return res.status(403).json({ success: false, message: "Not authorised for this chat" });
+
+    if (Math.random() < 0.1) pruneOldMessages();
+
+    const [rows] = await pool.query(
+      `${SWIPE_SELECT}
+       WHERE  sm.match_id = ?
+         AND  sm.message_id > ?
+       ORDER  BY sm.message_id ASC
+       LIMIT  ?`,
+      [matchId, after, limit]
+    );
+    res.json({ success: true, messages: rows });
+  } catch (err) { next(err); }
+};
+
+/** POST /api/chat/swipe/:matchId/messages  { content, replyToId? } */
+export const sendSwipeMessage = async (req, res, next) => {
+  try {
+    const matchId = Number(req.params.matchId);
+    const content  = (req.body.content || "").trim().slice(0, 2000);
+    if (!content) return res.status(400).json({ success: false, message: "Message cannot be empty" });
+
+    if (!(await getSwipeAccess(req.user.id, matchId)))
+      return res.status(403).json({ success: false, message: "Not authorised for this chat" });
+
+    const replyToId = await resolveSwipeReplyId(matchId, req.body.replyToId);
+
+    const [result] = await pool.query(
+      `INSERT INTO swipe_messages (match_id, sender_id, reply_to_id, content) VALUES (?,?,?,?)`,
+      [matchId, req.user.id, replyToId, content]
+    );
+    const [rows] = await pool.query(
+      `${SWIPE_SELECT} WHERE sm.message_id = ?`,
+      [result.insertId]
+    );
+    res.json({ success: true, message: rows[0] });
+  } catch (err) { next(err); }
+};
+
+/** DELETE /api/chat/swipe/:matchId/messages/:messageId */
+export const deleteSwipeMessage = async (req, res, next) => {
+  try {
+    const matchId   = Number(req.params.matchId);
+    const messageId = Number(req.params.messageId);
+
+    if (!(await getSwipeAccess(req.user.id, matchId)))
+      return res.status(403).json({ success: false, message: "Not authorised for this chat" });
+
+    const [rows] = await pool.query(
+      `SELECT sender_id FROM swipe_messages WHERE message_id = ? AND match_id = ?`,
+      [messageId, matchId]
+    );
+    if (!rows.length) return res.status(404).json({ success: false, message: "Message not found" });
+    if (rows[0].sender_id !== req.user.id)
+      return res.status(403).json({ success: false, message: "You can only delete your own messages" });
+
+    await pool.query(
+      `UPDATE swipe_messages SET content = '', is_deleted = 1, deleted_at = NOW() WHERE message_id = ?`,
+      [messageId]
+    );
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
+/** PUT /api/chat/swipe/:matchId/read  { lastMessageId } */
+export const markSwipeRead = async (req, res, next) => {
+  try {
+    const matchId       = Number(req.params.matchId);
+    const lastMessageId = Number(req.body.lastMessageId || 0);
+
+    await pool.query(
+      `INSERT INTO chat_read_status (user_id, chat_type, ref_id, last_message_id)
+       VALUES (?, 'swipe', ?, ?)
+       ON DUPLICATE KEY UPDATE last_message_id = GREATEST(last_message_id, VALUES(last_message_id))`,
+      [req.user.id, matchId, lastMessageId]
+    );
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
 // ─── UNREAD COUNTS ────────────────────────────────────────────────────────────
 
 /**
@@ -349,12 +487,33 @@ export const getUnreadCounts = async (req, res, next) => {
       [uid, uid, uid, uid]
     );
 
+    // Swipe-match unread — only matches the user is part of
+    const [swipeRows] = await pool.query(
+      `SELECT sm.match_id,
+              COUNT(*) AS unread
+       FROM   swipe_messages sm
+       JOIN   swipe_matches  smat
+              ON  smat.match_id = sm.match_id
+              AND (smat.user_a_id = ? OR smat.user_b_id = ?)
+       LEFT JOIN chat_read_status crs
+              ON  crs.user_id   = ?
+              AND crs.chat_type = 'swipe'
+              AND crs.ref_id    = sm.match_id
+       WHERE  sm.sender_id != ?
+         AND  sm.message_id > COALESCE(crs.last_message_id, 0)
+       GROUP  BY sm.match_id`,
+      [uid, uid, uid, uid]
+    );
+
     const teams = {};
     teamRows.forEach(r => { teams[r.team_id] = r.unread; });
 
     const dms = {};
     dmRows.forEach(r => { dms[r.application_id] = r.unread; });
 
-    res.json({ success: true, teams, dms });
+    const swipes = {};
+    swipeRows.forEach(r => { swipes[r.match_id] = r.unread; });
+
+    res.json({ success: true, teams, dms, swipes });
   } catch (err) { next(err); }
 };

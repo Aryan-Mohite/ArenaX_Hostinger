@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { to: "/games", label: "Games" },
   { to: "/tournament", label: "The Arena" },
   { to: "/teamfinder", label: "TeamUP Arena" },
+  { to: "/squadmatch", label: "Squad Match" },
   { to: "/stream", label: "Spectate" },
   { to: "/communities", label: "The Nexus" },
   { to: "/blog", label: "Blog" },

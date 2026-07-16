@@ -28,3 +28,16 @@ export const deleteDmMessage = (appId, messageId) =>
 
 export const markDmRead = (appId, lastMessageId) =>
   API.put(`/chat/dm/${appId}/read`, { lastMessageId });
+
+// ─── Swipe-match chat ──────────────────────────────────────────────────────────
+export const getSwipeMessages = (matchId, after = 0) =>
+  API.get(`/chat/swipe/${matchId}/messages`, { params: { after } });
+
+export const sendSwipeMessage = (matchId, content, replyToId = null) =>
+  API.post(`/chat/swipe/${matchId}/messages`, { content, replyToId });
+
+export const deleteSwipeMessage = (matchId, messageId) =>
+  API.delete(`/chat/swipe/${matchId}/messages/${messageId}`);
+
+export const markSwipeRead = (matchId, lastMessageId) =>
+  API.put(`/chat/swipe/${matchId}/read`, { lastMessageId });

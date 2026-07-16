@@ -26,6 +26,7 @@ const Tournament = lazy(() => import("./pages/Tournament"));
 const TeamFinder = lazy(() => import("./pages/TeamFinder"));
 const Stream     = lazy(() => import("./pages/Stream"));
 const Communities = lazy(() => import("./pages/Communities"));
+const SquadMatch  = lazy(() => import("./pages/SquadMatch"));
 
 // ── Auth pages
 const Login          = lazy(() => import("./pages/Login"));
@@ -85,6 +86,16 @@ export default function App() {
           <Route path="/tournament/:id" element={<Layout><Tournament /></Layout>} />
           <Route path="/teamfinder"    element={<Layout><TeamFinder /></Layout>} />
           <Route path="/communities"   element={<Layout><Communities /></Layout>} />
+          <Route
+            path="/squadmatch"
+            element={
+              <Layout>
+                <ProtectedRoute>
+                  <SquadMatch />
+                </ProtectedRoute>
+              </Layout>
+            }
+          />
           <Route path="/stream"        element={<Layout><Stream /></Layout>} />
           <Route path="/about"         element={<Layout><About /></Layout>} />
           <Route path="/faq"           element={<Layout><Faq /></Layout>} />

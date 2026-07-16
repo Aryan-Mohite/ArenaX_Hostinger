@@ -1,68 +1,36 @@
-# ArenaX — Round 7: react-snap prerendering fix
+# Squad Match — new + changed files
 
-## What this fixes
+Drop these into your ArenaX_Hostinger repo at the same paths, overwriting
+the existing versions of any file already there. Nothing here needs merging
+by hand — every file is a complete, final version.
 
-Real Search Console data showed only 5 of your ~17 live routes have ever had
-a Google impression — /tournament, /teamfinder, /games, /stream,
-/communities, and /faq have none. Root cause, confirmed in your code: React
-Helmet only injects per-page title/description/canonical/JSON-LD *after* the
-JS bundle hydrates (`main.jsx` used `createRoot`, no SSR). Google's fast
-first-pass crawl sees generic homepage metadata on every URL.
+## New files
+- database/migrations/2026_07_gamer_dna_swipe_match.sql
+- src/controllers/gamerDnaController.js
+- src/routes/gamerDnaRoutes.js
+- frontend/src/pages/SquadMatch.jsx
+- frontend/src/services/gamerDnaService.js
 
-This patch adds prerendering so each route ships with its real, final HTML
-already in place — no JS execution needed to see it.
+## Modified files (overwrite in place)
+- src/app.js — registers /api/gamer-dna route
+- src/controllers/chatController.js — adds swipe-match chat (mirrors DM chat)
+- src/routes/chatRoutes.js — adds swipe/:matchId/messages routes
+- frontend/src/App.jsx — adds /squadmatch route (protected, lazy-loaded)
+- frontend/src/components/Navbar.jsx — adds "Squad Match" nav link
+- frontend/src/components/ChatDrawer.jsx — adds chatType 'swipe' support
+- frontend/src/context/ChatContext.jsx — adds swipe unread counts
+- frontend/src/services/chatService.js — adds swipe chat API calls
 
-## Files in this package (3 changed, repo-mirrored paths)
+## Setup steps
+1. Copy all files above into your repo (matching paths)
+2. Run `database/migrations/2026_07_gamer_dna_swipe_match.sql` against your
+   Hostinger MySQL database (phpMyAdmin or `mysql <` from CLI) — safe to
+   re-run, uses CREATE TABLE IF NOT EXISTS
+3. No new npm packages required — `npm install` only if your lockfile is
+   out of sync for other reasons
+4. Rebuild the frontend and redeploy as usual
 
-- `frontend/src/main.jsx` — switched to `hydrateRoot` when prerendered
-  content exists in `#root`, falls back to `createRoot` otherwise. No
-  behavior change for regular users; matters only for prerendered pages.
-- `frontend/package.json` — added `react-snap` as a devDependency, a
-  `prerender` script, and a `reactSnap` config block listing every static
-  route to prerender (all your public pages + all 4 blog posts).
-- `DEPLOY_HOSTINGER.md` — new section explaining exactly how and where to
-  run the prerender step, and why.
-
-## What I verified myself
-
-- `npm run build` still completes cleanly with the `main.jsx` change — no
-  regressions, same chunk output as before.
-- Confirmed react-snap actually requires downloading real Chromium via
-  Puppeteer, and that this download is blocked in my own sandboxed
-  environment (`storage.googleapis.com` 403). I could not run the prerender
-  step itself here.
-
-## Important: run `npm run prerender` on your own machine, not Hostinger
-
-This isn't a shortcut — it's a real constraint. Puppeteer downloads a ~100MB
-Chromium binary and needs system libraries (libnss3, libatk, etc.) that most
-shared Node.js hosting, including Hostinger's, doesn't reliably provide.
-Wiring `react-snap` into Hostinger's own `postinstall`/build step risks a
-silent failure on every future deploy. Instead:
-
-```bash
-cd frontend
-npm install
-npm run build
-npm run prerender
-```
-
-Then upload the resulting `frontend/dist/` folder to Hostinger yourself
-(don't let Hostinger's `postinstall` rebuild over it), or better: run these
-same 3 commands in a GitHub Actions workflow (full Chromium support there)
-and have CI push `dist/` to Hostinger as a deploy artifact. Full details are
-in the updated `DEPLOY_HOSTINGER.md`.
-
-## After deploying
-
-Open a prerendered page's actual page source (not dev tools — "View Page
-Source") for something like `/tournament` and confirm the title tag and
-meta description are the real per-page ones, not the generic homepage
-defaults, before any JS runs.
-
-## Not included in this round
-
-- `/tournament/:id` pages are intentionally left out of prerendering — they're
-  DB-driven, react-snap can't discover them, and they're already covered by
-  your dynamic sitemap.
-- Backlinks/domain authority — still the other open item, not a code fix.
+## Verified
+- Backend files pass `node --check`
+- Frontend builds cleanly via `vite build` (SquadMatch compiles as its own
+  9.3kB lazy-loaded chunk, no errors)

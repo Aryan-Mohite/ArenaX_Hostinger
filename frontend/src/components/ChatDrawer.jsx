@@ -10,7 +10,20 @@ import {
   sendDmMessage,
   deleteDmMessage,
   markDmRead,
+  getSwipeMessages,
+  sendSwipeMessage,
+  deleteSwipeMessage,
+  markSwipeRead,
 } from "../services/chatService";
+
+// ─── Per-chatType API dispatch ─────────────────────────────────────────────────
+// Keeps the 'team' | 'dm' | 'swipe' branching in one place instead of a
+// ternary at every call site.
+const CHAT_API = {
+  team:  { get: getTeamMessages,  send: sendTeamMessage,  del: deleteTeamMessage,  read: markTeamRead },
+  dm:    { get: getDmMessages,    send: sendDmMessage,    del: deleteDmMessage,    read: markDmRead },
+  swipe: { get: getSwipeMessages, send: sendSwipeMessage, del: deleteSwipeMessage, read: markSwipeRead },
+};
 
 const POLL_MS = 4_000; // 4 s while drawer is open
 
@@ -277,8 +290,8 @@ function ReplyPreview({ replyingTo, onCancel }) {
  * Props:
  *   open        boolean
  *   onClose     () => void
- *   chatType    'team' | 'dm'
- *   chatId      number  (teamId for 'team', applicationId for 'dm')
+ *   chatType    'team' | 'dm' | 'swipe'
+ *   chatId      number  (teamId for 'team', applicationId for 'dm', matchId for 'swipe')
  *   title       string  (e.g. "Alpha Squad" or "Chat with shivaay_dev")
  *   subtitle    string  optional
  */
@@ -313,10 +326,7 @@ export default function ChatDrawer({
       if (!chatId || !chatType) return;
       try {
         const after = initial ? 0 : lastIdRef.current;
-        const res =
-          chatType === "team"
-            ? await getTeamMessages(chatId, after)
-            : await getDmMessages(chatId, after);
+        const res = await CHAT_API[chatType].get(chatId, after);
 
         const msgs = res.data.messages || [];
         if (msgs.length === 0) return;
@@ -339,8 +349,7 @@ export default function ChatDrawer({
         lastIdRef.current = newLast;
 
         // Mark as read + refresh badge count
-        if (chatType === "team") markTeamRead(chatId, newLast).catch(() => {});
-        else markDmRead(chatId, newLast).catch(() => {});
+        CHAT_API[chatType].read(chatId, newLast).catch(() => {});
         refreshBadges();
       } catch (err) {
         if (initial) setError("Could not load messages");
@@ -398,17 +407,12 @@ export default function ChatDrawer({
     setInput("");
     const replyToId = replyingTo?.message_id || null;
     try {
-      const res =
-        chatType === "team"
-          ? await sendTeamMessage(chatId, text, replyToId)
-          : await sendDmMessage(chatId, text, replyToId);
+      const res = await CHAT_API[chatType].send(chatId, text, replyToId);
       const msg = res.data.message;
       setMessages((prev) => [...prev, msg]);
       lastIdRef.current = msg.message_id;
       setReplyingTo(null);
-      if (chatType === "team")
-        markTeamRead(chatId, msg.message_id).catch(() => {});
-      else markDmRead(chatId, msg.message_id).catch(() => {});
+      CHAT_API[chatType].read(chatId, msg.message_id).catch(() => {});
     } catch {
       setInput(text); // restore on failure
     } finally {
@@ -452,8 +456,7 @@ export default function ChatDrawer({
     );
 
     try {
-      if (chatType === "team") await deleteTeamMessage(chatId, msg.message_id);
-      else await deleteDmMessage(chatId, msg.message_id);
+      await CHAT_API[chatType].del(chatId, msg.message_id);
     } catch {
       // Revert on failure
       setMessages((prev) =>
@@ -525,7 +528,7 @@ export default function ChatDrawer({
               border: "1px solid rgba(255,70,85,0.3)",
             }}
           >
-            {chatType === "team" ? "🛡️" : "💬"}
+            {chatType === "team" ? "🛡️" : chatType === "swipe" ? "🎮" : "💬"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-white text-sm truncate">{title}</p>

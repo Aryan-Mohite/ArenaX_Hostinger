@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { awardTeamJoinAchievement } from "../services/achievementService.js";
 
 // ─── GET POSTS ────────────────────────────────────────────────────────────────
 export const getPosts = async (req, res, next) => {
@@ -245,6 +246,15 @@ export const finalAcceptApplication = async (req, res, next) => {
     }
 
     await conn.commit();
+
+    // Fire-and-forget: don't let achievement bookkeeping slow down or
+    // break the accept flow. Same pattern as chat retention pruning.
+    if (team_id) {
+      awardTeamJoinAchievement(app[0].user_id).catch((err) =>
+        console.error("[achievements] awardTeamJoinAchievement failed:", err.message)
+      );
+    }
+
     res.json({ success: true, team_id, application: app[0] });
   } catch (err) {
     await conn.rollback();

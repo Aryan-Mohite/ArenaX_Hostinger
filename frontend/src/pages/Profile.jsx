@@ -19,6 +19,7 @@ import { useChatContext } from "../context/ChatContext";
 import ChatDrawer from "../components/ChatDrawer";
 import TeamIdBadge from "../components/TeamIdBadge";
 import FollowStatsModal from "../components/FollowStatsModal";
+import AchievementsTab from "../components/AchievementsTab";
 
 // ─── Platform config ──────────────────────────────────────────────────────────
 export const GAME_PLATFORMS = [
@@ -281,6 +282,7 @@ export default function Profile() {
     { id: "overview", label: "Service Record" },
     { id: "games", label: "Arsenal" },
     { id: "gameids", label: "🎮 Game IDs" },
+    { id: "achievements", label: "🏆 Achievements" },
     {
       id: "teams",
       label: `🛡️ Teams${myTeams.length ? ` (${myTeams.length})` : ""}`,
@@ -755,6 +757,10 @@ export default function Profile() {
             }
           }}
         />
+      )}
+
+      {activeTab === "achievements" && (
+        <AchievementsTab username={profile?.username} />
       )}
 
       {activeTab === "teams" && (

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { awardDnaMatchAchievement } from "../services/achievementService.js";
 
 // ─── SAVE / UPDATE MY DNA ───────────────────────────────────────────────────
 // POST /api/gamer-dna  { play_style, comms_pref, session_goal }
@@ -135,6 +136,18 @@ export const swipe = async (req, res, next) => {
     }
 
     await conn.commit();
+
+    if (match) {
+      // Both sides of the match gain a "DNA match" toward their count.
+      // Fire-and-forget — never block the swipe response.
+      awardDnaMatchAchievement(match.user_a_id).catch((err) =>
+        console.error("[achievements] awardDnaMatchAchievement failed:", err.message)
+      );
+      awardDnaMatchAchievement(match.user_b_id).catch((err) =>
+        console.error("[achievements] awardDnaMatchAchievement failed:", err.message)
+      );
+    }
+
     res.json({ success: true, matched: !!match, match });
   } catch (err) {
     await conn.rollback();

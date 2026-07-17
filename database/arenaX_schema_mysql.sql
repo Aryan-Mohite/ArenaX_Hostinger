@@ -1528,3 +1528,85 @@ CREATE INDEX idx_rating_rated ON match_ratings(rated_id, score);
 ALTER TABLE users
   ADD COLUMN karma_positive INT NOT NULL DEFAULT 0,
   ADD COLUMN karma_negative INT NOT NULL DEFAULT 0;
+
+DESCRIBE achievements;
+
+
+
+
+
+-- ============================================================
+-- ArenaX — Achievements + Login Streak migration
+-- Additive only: does not modify any existing table.
+-- Run this against your existing arenaX schema.
+-- ============================================================
+
+DESCRIBE achievements;
+
+DROP TABLE IF EXISTS user_achievements;
+DROP TABLE IF EXISTS achievements;
+DROP TABLE IF EXISTS user_streaks;
+
+-- 1. Master list of all possible achievements
+CREATE TABLE IF NOT EXISTS achievements (
+    achievement_id  INT AUTO_INCREMENT PRIMARY KEY,
+    achievement_key VARCHAR(64)   NOT NULL UNIQUE,   -- stable code reference, e.g. 'login_streak_30'
+    name            VARCHAR(100)  NOT NULL,          -- display name, e.g. 'Locked In'
+    description     VARCHAR(255)  NOT NULL,          -- shown on both achieved + locked cards
+    category        ENUM('login_streak','team','nexus_post','dna_match') NOT NULL,
+    tier            INT           NOT NULL DEFAULT 1,-- ordering within category
+    threshold       INT           NOT NULL,          -- count required to unlock
+    icon            VARCHAR(64)   DEFAULT NULL,       -- icon key for frontend
+    created_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Which users have earned which achievements
+CREATE TABLE IF NOT EXISTS user_achievements (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT      NOT NULL,
+    achievement_id  INT      NOT NULL,
+    earned_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_user_achievement (user_id, achievement_id),
+    CONSTRAINT fk_ua_user        FOREIGN KEY (user_id)        REFERENCES users(user_id)               ON DELETE CASCADE,
+    CONSTRAINT fk_ua_achievement FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id)  ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. Login streak tracking — one row per user
+CREATE TABLE IF NOT EXISTS user_streaks (
+    user_id          INT PRIMARY KEY,
+    current_streak   INT  NOT NULL DEFAULT 0,
+    longest_streak    INT  NOT NULL DEFAULT 0,
+    last_login_date  DATE DEFAULT NULL,
+    CONSTRAINT fk_streak_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_achievements_category_threshold ON achievements (category, threshold);
+CREATE INDEX idx_user_achievements_user           ON user_achievements (user_id);
+
+-- ============================================================
+-- Seed data — edit names/descriptions/icons freely, keys are stable
+-- ============================================================
+
+INSERT INTO achievements (achievement_key, name, description, category, tier, threshold, icon) VALUES
+-- Login streaks
+('login_streak_7',   'Warming Up',   'Logged in 7 days in a row.',            'login_streak', 1, 7,   'streak_7'),
+('login_streak_30',  'Locked In',    'Logged in 30 days in a row.',           'login_streak', 2, 30,  'streak_30'),
+('login_streak_100', 'No Days Off',  'Logged in 100 days in a row.',          'login_streak', 3, 100, 'streak_100'),
+('login_streak_200', 'The Grinder',  'Logged in 200 days in a row.',          'login_streak', 4, 200, 'streak_200'),
+('login_streak_500', 'Immortal',     'Logged in 500 days in a row.',          'login_streak', 5, 500, 'streak_500'),
+
+-- Team
+('team_joined',      'Squad Up',     'Joined your first team on ArenaX.',     'team', 1, 1, 'squad_up'),
+
+-- Nexus posts
+('nexus_post_1',     'First Transmission', 'Made your 1st post on The Nexus.',   'nexus_post', 1, 1,   'nexus_1'),
+('nexus_post_10',    'Signal Booster',     'Made your 10th post on The Nexus.',  'nexus_post', 2, 10,  'nexus_10'),
+('nexus_post_100',   'Nexus Veteran',      'Made your 100th post on The Nexus.', 'nexus_post', 3, 100, 'nexus_100'),
+
+-- DNA matches (mutual swipe likes)
+('dna_match_1',      'First Match',    'Got your 1st Gamer DNA match.',   'dna_match', 1, 1,   'dna_1'),
+('dna_match_5',      'Getting Noticed','Got 5 Gamer DNA matches.',        'dna_match', 2, 5,   'dna_5'),
+('dna_match_10',     'Fan Favorite',   'Got 10 Gamer DNA matches.',       'dna_match', 3, 10,  'dna_10'),
+('dna_match_25',     'Crowd Puller',   'Got 25 Gamer DNA matches.',       'dna_match', 4, 25,  'dna_25'),
+('dna_match_50',     'Viral',          'Got 50 Gamer DNA matches.',       'dna_match', 5, 50,  'dna_50'),
+('dna_match_100',    'DNA Royalty',    'Got 100 Gamer DNA matches.',      'dna_match', 6, 100, 'dna_100');

@@ -3,6 +3,7 @@ import pool from "../config/db.js";
 import { generateToken } from "../utils/jwt.js";
 import { generateOtp, compareOtp } from "../utils/otp.js";
 import { sendOtpEmail, sendPasswordResetEmail } from "../utils/mailer.js";
+import { updateLoginStreak } from "../services/achievementService.js";
 
 const SALT_ROUNDS        = 12;
 const OTP_TTL_MS         = 10 * 60 * 1000;  // 10 minutes
@@ -205,6 +206,17 @@ export const login = async (req, res, next) => {
       [user.user_id]
     );
 
+    // Login streak + achievements. Not fired-and-forgotten here (unlike the
+    // chat retention pruning) because the frontend needs `newlyEarned` in
+    // this same response to show a "new achievement" toast immediately.
+    let streak = { currentStreak: 0, longestStreak: 0, newlyEarned: [] };
+    try {
+      streak = await updateLoginStreak(user.user_id);
+    } catch (streakErr) {
+      // Never let a streak-tracking failure block login itself
+      console.error("[achievements] updateLoginStreak failed:", streakErr.message);
+    }
+
     const adminEmails = (process.env.ADMIN_EMAILS || "")
       .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
     const isAdmin = adminEmails.includes(user.email.toLowerCase());
@@ -215,6 +227,8 @@ export const login = async (req, res, next) => {
       message: "Login successful",
       token,
       user: { id: user.user_id, username: user.username, email: user.email, profile_picture: user.profile_picture ?? null, isAdmin },
+      streak: { currentStreak: streak.currentStreak, longestStreak: streak.longestStreak },
+      newlyEarnedAchievements: streak.newlyEarned,
     });
   } catch (err) { next(err); }
 };

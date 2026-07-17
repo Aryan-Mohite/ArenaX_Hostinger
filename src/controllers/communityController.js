@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { awardNexusPostAchievement } from "../services/achievementService.js";
 import { sanitizeFields } from "../utils/sanitize.js";
 
 const MAX_POST_IMAGES = 5;
@@ -97,6 +98,10 @@ export const createPost = async (req, res, next) => {
        JOIN users u ON u.user_id = cp.user_id
        WHERE cp.post_id = ?`,
       [result.insertId]
+    );
+
+    awardNexusPostAchievement(userId).catch((err) =>
+      console.error("[achievements] awardNexusPostAchievement failed:", err.message)
     );
 
     res.status(201).json({ success: true, post: newPost[0] });

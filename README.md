@@ -1,54 +1,61 @@
-# Squad Match + Karma/Reputation — new + changed files
+# ArenaX — Achievement Backfill + Daily Check-in Fix
 
-Two features, cumulative: Squad Match (Gamer DNA swipe matching) plus a
-post-match karma/reputation layer on top of it. Drop these into your
-ArenaX_Hostinger repo at the same paths, overwriting any existing versions.
+## What was wrong
 
-## New files
-- database/migrations/2026_07_gamer_dna_swipe_match.sql
-- database/migrations/2026_07b_match_karma.sql
-- src/controllers/gamerDnaController.js
-- src/routes/gamerDnaRoutes.js
-- frontend/src/pages/SquadMatch.jsx
-- frontend/src/services/gamerDnaService.js
-- frontend/src/utils/karma.js
+1. **Achievements showing "completed" progress but still Locked** — achievement
+   checks only fire on a *new* action (new post, new match, new team join).
+   Actions that already happened before the feature was deployed (your 3 Nexus
+   posts, your 1 team) never triggered a check, so they were never unlocked
+   even though the progress bar (which reads live counts) correctly showed
+   3/1, 1/1, etc.
 
-## Modified files (overwrite in place)
-- src/app.js — registers /api/gamer-dna route
-- src/controllers/chatController.js — adds swipe-match chat (mirrors DM chat)
-- src/controllers/userController.js — public profile now returns karma_positive/karma_negative
-- src/routes/chatRoutes.js — adds swipe/:matchId/messages routes
-- frontend/src/App.jsx — adds /squadmatch route (protected, lazy-loaded)
-- frontend/src/components/Navbar.jsx — adds "Squad Match" nav link
-- frontend/src/components/ChatDrawer.jsx — adds chatType 'swipe' support
-- frontend/src/context/ChatContext.jsx — adds swipe unread counts
-- frontend/src/services/chatService.js — adds swipe chat API calls
-- frontend/src/pages/UserProfile.jsx — shows "🌟 Trusted Teammate" badge when earned
+2. **Login streak stuck at 0** — `updateLoginStreak()` only ran inside the
+   `/auth/login` endpoint. Since your JWT is cached in `localStorage` and
+   re-verified via `/auth/me` on repeat visits, most days never actually hit
+   `/login` again — so the streak almost never incremented.
 
-## What karma does
-- After a Squad Match, either person can rate the other 👍/👎 from the
-  Matches tab — no scale, no comment field, low friction by design.
-- Ratings are cached as `karma_positive`/`karma_negative` counts on `users`,
-  updated transactionally so they stay in sync even if someone changes
-  their rating later.
-- Design choice: **karma only ever produces a positive badge.** With 5+
-  ratings and an 80%+ positive ratio, a user gets a "🌟 Trusted Teammate"
-  badge on their Squad Match card and public profile. Low or negative karma
-  is never surfaced as a public label — that avoids turning informal peer
-  ratings into a tool for public shaming or brigading. Negative counts still
-  exist in the data (useful for internal moderation later) but the product
-  never displays them.
+## The fixes
 
-## Setup steps
-1. Copy all files above into your repo (matching paths)
-2. Run BOTH migrations against your Hostinger MySQL, in order:
-   - `2026_07_gamer_dna_swipe_match.sql`
-   - `2026_07b_match_karma.sql`
-   (safe to re-run — CREATE TABLE IF NOT EXISTS throughout)
-3. No new npm packages required
-4. Rebuild the frontend and redeploy as usual
+- **`backend/scripts/backfillAchievements.js`** — one-time script that reads
+  every user's real current counts (posts, matches, active team memberships,
+  streak) and awards anything already earned. Safe to re-run any time.
+- **New `/api/achievements/checkin` endpoint** (GET status + POST claim) —
+  decoupled from `/auth/login` entirely, so it works no matter how the user
+  got their session.
+- **`DailyCheckinButton`** — a card on the Homepage, visible only when today
+  isn't claimed yet. Clicking it claims the day, shows a confirmation
+  (+ any newly unlocked achievements), then disappears. It reappears
+  automatically the next calendar day — no client-side timer, it just asks
+  the server "is today claimed?" on each page load.
 
-## Verified
-- All backend files pass `node --check`
-- Frontend builds cleanly via `vite build` — SquadMatch (11kB) and karma.js
-  compile as their own lazy-loaded chunks, no errors
+## How to apply
+
+### Backend
+1. Copy `backend/src/services/achievementService.js`,
+   `backend/src/controllers/achievementController.js`, and
+   `backend/src/routes/achievementRoutes.js` over your existing versions
+   (same paths, `src/...`).
+2. Copy `backend/scripts/backfillAchievements.js` into your repo's
+   `scripts/` folder.
+3. `backend/package.json` here has one addition — the
+   `"backfill:achievements": "node scripts/backfillAchievements.js"` script
+   entry. Add that line to your real `package.json` if you don't want to
+   overwrite the whole file.
+4. **Run the backfill once** (after step 1–2 are deployed and your DB is
+   reachable):
+   ```
+   npm run backfill:achievements
+   ```
+   You'll see console output listing which achievements got awarded to which
+   users. Re-running it is harmless — already-awarded achievements are
+   skipped.
+
+### Frontend
+1. Copy `frontend/src/components/DailyCheckinButton.jsx` into your repo.
+2. Copy `frontend/src/services/achievementService.js` over your existing
+   version (adds `getCheckinStatus` / `claimCheckin`).
+3. Copy `frontend/src/pages/Home.jsx` over your existing version (imports and
+   renders `<DailyCheckinButton />` right below the stats bar).
+
+No new npm packages needed for this round — no `package.json` changes on the
+frontend.

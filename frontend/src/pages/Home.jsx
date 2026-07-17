@@ -4,6 +4,7 @@ import { getTournaments } from "../services/tournamentService";
 import { getLiveStreams } from "../services/streamService";
 import TournamentCard from "../components/TournamentCard";
 import SEO from "../components/SEO";
+import DailyCheckinButton from "../components/DailyCheckinButton";
 
 // ─── Skeleton loaders ────────────────────────────────────────────────────────
 function SkeletonCard({ className = "" }) {
@@ -393,6 +394,8 @@ export default function Home() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 space-y-20">
+        <DailyCheckinButton />
+
         {/* ══════════════════════════════════════════════════════
             UPCOMING TOURNAMENTS
         ══════════════════════════════════════════════════════ */}

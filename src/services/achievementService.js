@@ -81,6 +81,32 @@ export const updateLoginStreak = async (userId) => {
   return { currentStreak, longestStreak, newlyEarned };
 };
 
+// ─── CHECK-IN STATUS ──────────────────────────────────────────────────────────
+// Powers the Homepage "claim today's streak" button. Unlike login streak
+// updates (which only fire on the actual /auth/login endpoint, rarely hit
+// once a session token is cached), this can be polled any time to see if
+// today is already claimed — purely a read, no writes.
+export const getCheckinStatus = async (userId) => {
+  const [rows] = await pool.query(
+    "SELECT current_streak, longest_streak, last_login_date FROM user_streaks WHERE user_id = ?",
+    [userId]
+  );
+
+  if (rows.length === 0) {
+    return { alreadyCheckedIn: false, currentStreak: 0, longestStreak: 0 };
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const row = rows[0];
+  const alreadyCheckedIn = !!(row.last_login_date && sameDay(row.last_login_date, today));
+
+  return {
+    alreadyCheckedIn,
+    currentStreak: row.current_streak,
+    longestStreak: row.longest_streak,
+  };
+};
+
 // ─── TEAM JOIN ────────────────────────────────────────────────────────────────
 // Call when a user's TeamFinder application is finally accepted and they
 // become a team_members row. Threshold is always 1 (first team joined).

@@ -67,6 +67,7 @@ export default function GameShowcase() {
   const [loading, setLoading] = useState(true);
   const pinRef = useRef(null);
   const trackRef = useRef(null);
+  const headingRef = useRef(null);
 
   // ── Load real games, already ordered by rating from the API ──
   useEffect(() => {
@@ -98,19 +99,39 @@ export default function GameShowcase() {
           const getDistance = () =>
             Math.max(track.scrollWidth - track.parentElement.offsetWidth, 0);
 
-          gsap.to(track, {
-            x: () => -getDistance(),
-            ease: "none",
+          // If the cards already fit the viewport (few games, wide screen),
+          // there's nothing to slide — don't pin the section at all. A pin
+          // with ~0px of travel just holds the page hostage for no visual
+          // payoff, which is what was reading as "stuck."
+          if (getDistance() < 40) return;
+
+          const tl = gsap.timeline({
             scrollTrigger: {
               trigger: pinRef.current,
               start: "top top",
-              end: () => "+=" + (getDistance() * 1.15 + 1),
-              scrub: 1,
+              // A small fixed pause at the end (not a % of distance) so the
+              // last card is readable for a beat before release — not a
+              // long dead zone that scales up with more cards.
+              end: () => "+=" + (getDistance() + 80),
+              scrub: 0.4,
               pin: true,
               anticipatePin: 1,
               invalidateOnRefresh: true,
             },
           });
+
+          tl.fromTo(
+            headingRef.current,
+            { opacity: 0.5, y: 12 },
+            { opacity: 1, y: 0, ease: "power1.out", duration: 0.12 },
+            0,
+          );
+
+          tl.to(
+            track,
+            { x: () => -getDistance(), ease: "none", duration: 1 },
+            0,
+          );
         },
       });
     }, pinRef);
@@ -146,7 +167,7 @@ export default function GameShowcase() {
       className="relative py-16 md:py-0 md:min-h-[85vh] md:flex md:items-center overflow-hidden border-y"
       style={{ borderColor: "var(--border-color)", background: "var(--bg-body)" }}
     >
-      <div className="w-full">
+      <div ref={headingRef} className="w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-end justify-between mb-8 gap-4">
           <div>
             <span className="badge-red inline-flex">Top tier games</span>

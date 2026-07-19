@@ -35,6 +35,7 @@ const STEPS = [
 
 export default function PlatformJourney() {
   const sectionRef = useRef(null);
+  const contentRef = useRef(null);
   const fillRef = useRef(null);
   const nodeRefs = useRef([]);
 
@@ -52,12 +53,19 @@ export default function PlatformJourney() {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top top",
-              end: "+=100%",
-              scrub: 1,
+              end: "+=70%",
+              scrub: 0.4,
               pin: true,
               anticipatePin: 1,
             },
           });
+
+          tl.fromTo(
+            contentRef.current,
+            { opacity: 0.5, y: 16 },
+            { opacity: 1, y: 0, ease: "power1.out", duration: 0.18 },
+            0,
+          );
 
           tl.fromTo(
             fillRef.current,
@@ -106,7 +114,7 @@ export default function PlatformJourney() {
       className="relative py-16 md:py-0 md:min-h-[70vh] md:flex md:items-center overflow-hidden"
       style={{ background: "var(--bg-body)" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+      <div ref={contentRef} className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
         <div className="text-center mb-14 md:mb-16">
           <span className="badge-red inline-flex">How it works</span>
           <h2 className="font-display font-bold text-3xl md:text-4xl mt-4 text-theme-primary">

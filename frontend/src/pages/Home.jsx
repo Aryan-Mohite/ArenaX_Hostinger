@@ -6,6 +6,7 @@ import TournamentCard from "../components/TournamentCard";
 import SEO from "../components/SEO";
 import DailyCheckinButton from "../components/DailyCheckinButton";
 import PlatformJourney from "../components/PlatformJourney";
+import GameShowcase from "../components/GameShowcase";
 
 // ─── Skeleton loaders ────────────────────────────────────────────────────────
 function SkeletonCard({ className = "" }) {
@@ -350,30 +351,10 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          GAMES STRIP
+          GAME SHOWCASE — scroll-pinned horizontal scroll,
+          real games + cover art from the API
       ══════════════════════════════════════════════════════ */}
-      <div className="border-y border-surface-border bg-surface-card/30 py-5 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <p className="text-xs text-gray-600 uppercase tracking-widest mb-4">
-            Supported games
-          </p>
-          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-            {GAMES.map((g) => (
-              <div
-                key={g.name}
-                className="shrink-0 px-4 py-2 rounded-full border text-xs font-semibold tracking-wide transition-all duration-200 cursor-default hover:scale-105"
-                style={{
-                  borderColor: g.color + "40",
-                  color: g.color,
-                  background: g.color + "12",
-                }}
-              >
-                {g.name}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <GameShowcase />
 
       {/* ══════════════════════════════════════════════════════
           HOW IT WORKS — scroll-animated platform journey

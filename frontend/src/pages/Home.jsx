@@ -5,6 +5,7 @@ import { getLiveStreams } from "../services/streamService";
 import TournamentCard from "../components/TournamentCard";
 import SEO from "../components/SEO";
 import DailyCheckinButton from "../components/DailyCheckinButton";
+import PlatformJourney from "../components/PlatformJourney";
 
 // ─── Skeleton loaders ────────────────────────────────────────────────────────
 function SkeletonCard({ className = "" }) {
@@ -373,6 +374,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          HOW IT WORKS — scroll-animated platform journey
+      ══════════════════════════════════════════════════════ */}
+      <PlatformJourney />
 
       {/* ══════════════════════════════════════════════════════
           STATS BAR

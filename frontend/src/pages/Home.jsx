@@ -152,6 +152,27 @@ export default function Home() {
     loadStreams();
   }, []);
 
+  // ── Web fonts (Rajdhani/Inter) can swap in after the pinned scroll
+  //    sections below have already measured the page. Force one more
+  //    recalculation once fonts + the page are fully settled so their
+  //    trigger positions stay accurate. ──
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => {
+      import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+        if (!cancelled) ScrollTrigger.refresh();
+      });
+    };
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refresh);
+    }
+    window.addEventListener("load", refresh);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", refresh);
+    };
+  }, []);
+
   // ── Intersection observer for count-up animation ──
   useEffect(() => {
     const observer = new IntersectionObserver(

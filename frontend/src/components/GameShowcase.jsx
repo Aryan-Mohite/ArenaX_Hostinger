@@ -107,6 +107,7 @@ export default function GameShowcase() {
               end: () => "+=" + (getDistance() * 1.15 + 1),
               scrub: 1,
               pin: true,
+              anticipatePin: 1,
               invalidateOnRefresh: true,
             },
           });
@@ -114,7 +115,17 @@ export default function GameShowcase() {
       });
     }, pinRef);
 
-    return () => ctx.revert();
+    // This section's pin is created after an async data fetch, which adds
+    // height to the page (a pin-spacer) above whatever comes next. Any
+    // ScrollTrigger created earlier (e.g. the "How it works" rail below)
+    // won't know about that extra height unless we force a recalculation —
+    // otherwise it fires too early and the two pinned sections overlap.
+    const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
+
+    return () => {
+      cancelAnimationFrame(refreshId);
+      ctx.revert();
+    };
   }, [loading, games]);
 
   if (!loading && games.length === 0) {
@@ -133,7 +144,7 @@ export default function GameShowcase() {
     <section
       ref={pinRef}
       className="relative py-16 md:py-0 md:min-h-[85vh] md:flex md:items-center overflow-hidden border-y"
-      style={{ borderColor: "var(--border-color)" }}
+      style={{ borderColor: "var(--border-color)", background: "var(--bg-body)" }}
     >
       <div className="w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-end justify-between mb-8 gap-4">

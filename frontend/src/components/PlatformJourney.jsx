@@ -55,6 +55,7 @@ export default function PlatformJourney() {
               end: "+=100%",
               scrub: 1,
               pin: true,
+              anticipatePin: 1,
             },
           });
 
@@ -103,6 +104,7 @@ export default function PlatformJourney() {
     <section
       ref={sectionRef}
       className="relative py-16 md:py-0 md:min-h-[70vh] md:flex md:items-center overflow-hidden"
+      style={{ background: "var(--bg-body)" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
         <div className="text-center mb-14 md:mb-16">

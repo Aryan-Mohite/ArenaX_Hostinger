@@ -5,7 +5,6 @@ import { getLiveStreams } from "../services/streamService";
 import TournamentCard from "../components/TournamentCard";
 import SEO from "../components/SEO";
 import DailyCheckinButton from "../components/DailyCheckinButton";
-import PlatformJourney from "../components/PlatformJourney";
 import GameShowcase from "../components/GameShowcase";
 
 // ─── Skeleton loaders ────────────────────────────────────────────────────────
@@ -376,11 +375,6 @@ export default function Home() {
           real games + cover art from the API
       ══════════════════════════════════════════════════════ */}
       <GameShowcase />
-
-      {/* ══════════════════════════════════════════════════════
-          HOW IT WORKS — scroll-animated platform journey
-      ══════════════════════════════════════════════════════ */}
-      <PlatformJourney />
 
       {/* ══════════════════════════════════════════════════════
           STATS BAR

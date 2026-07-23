@@ -18,6 +18,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // FIX: react-snap's bundled Puppeteer launches a very old Chromium
+    // (~Chrome 78-79) that predates optional chaining (?.) and nullish
+    // coalescing (??), both ES2020 features. Without an explicit target,
+    // esbuild's default output includes them, and the prerender step
+    // crashes with "SyntaxError: Unexpected token '?'". es2017 is the
+    // newest standard target below ES2020, so this keeps output modern
+    // for real users while staying parseable by react-snap's Chromium.
+    target: 'es2017',
     // SEO ADD: Minify CSS — reduces file size, improves LCP score
     cssMinify: true,
     // SEO ADD: minify with esbuild (default) is fastest; keep it explicit

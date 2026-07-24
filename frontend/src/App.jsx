@@ -22,6 +22,7 @@ import AdminRoute from "./components/AdminRoute";
 // ── Core public pages (highest traffic — still lazy; preload hints added below)
 const Home       = lazy(() => import("./pages/Home"));
 const Games      = lazy(() => import("./pages/Games"));
+const GamePage   = lazy(() => import("./pages/GamePage"));
 const Tournament = lazy(() => import("./pages/Tournament"));
 const TeamFinder = lazy(() => import("./pages/TeamFinder"));
 const Stream     = lazy(() => import("./pages/Stream"));
@@ -82,6 +83,7 @@ export default function App() {
           {/* ── Public pages ── */}
           <Route path="/"              element={<Layout><Home /></Layout>} />
           <Route path="/games"         element={<Layout><Games /></Layout>} />
+          <Route path="/games/:slug"   element={<Layout><GamePage /></Layout>} />
           <Route path="/tournament"    element={<Layout><Tournament /></Layout>} />
           <Route path="/tournament/:id" element={<Layout><Tournament /></Layout>} />
           <Route path="/teamfinder"    element={<Layout><TeamFinder /></Layout>} />

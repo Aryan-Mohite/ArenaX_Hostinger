@@ -1,5 +1,6 @@
 import "./config/env.js";
 import express from "express";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import helmet from "helmet";
@@ -343,24 +344,30 @@ app.get("/sitemap.xml", async (_req, res) => {
     console.warn("[sitemap] Could not fetch tournament pages:", err.message);
   }
 
-  // Dynamic: pull games for /games/:slug style pages, if/when that route exists.
-  // Currently /games is a single listing page (no per-game route in App.jsx),
-  // so this is commented out until a /games/:slug route is added.
-  //
-  // let gamePages = [];
-  // try {
-  //   const pool = (await import("./config/db.js")).default;
-  //   const [rows] = await pool.query("SELECT slug FROM games");
-  //   gamePages = rows.map((g) => ({
-  //     url: `/games/${g.slug}`,
-  //     priority: "0.7",
-  //     changefreq: "weekly",
-  //   }));
-  // } catch (err) {
-  //   console.warn("[sitemap] Could not fetch game pages:", err.message);
-  // }
+  // Per-game landing pages (/games/:slug), added once GamePage.jsx + the
+  // route existed. Read from the local games.json file rather than the DB:
+  // the slug list is static content anyway (same source GamePage.jsx's
+  // frontend copy is built from), so this avoids a DB dependency for pages
+  // that don't need one and keeps the sitemap available even if the DB is
+  // briefly down.
+  let gamePages = [];
+  try {
+    // fs.readFileSync + JSON.parse rather than an ESM JSON import: import
+    // attributes (`with { type: "json" }`) need Node 20.10+, but
+    // package.json's engines field only guarantees >=18. readFileSync works
+    // identically on every Node version this could run on (Hostinger, CI).
+    const gamesJsonPath = path.join(__dirname, "..", "data", "games.json");
+    const gamesData = JSON.parse(fs.readFileSync(gamesJsonPath, "utf-8"));
+    gamePages = gamesData.map((g) => ({
+      url: `/games/${g.slug}`,
+      priority: "0.7",
+      changefreq: "weekly",
+    }));
+  } catch (err) {
+    console.warn("[sitemap] Could not read games.json for game pages:", err.message);
+  }
 
-  const allPages = [...staticPages, ...blogPages, ...tournamentPages /*, ...gamePages */];
+  const allPages = [...staticPages, ...blogPages, ...tournamentPages, ...gamePages];
 
   const urlEntries = allPages
     .map(

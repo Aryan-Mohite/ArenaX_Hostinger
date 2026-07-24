@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { themeStyles } from "../utils/themeStyles";
 
@@ -150,8 +151,14 @@ export default function GameCard({ game, onAdd, onRemove, isFav = false }) {
       : "none",
   };
 
+  // Real <a> (via Link) rather than an onClick handler, so crawlers can
+  // discover /games/:slug pages by following links, not just via sitemap.
+  const CardTag = game.slug ? Link : "div";
+  const cardTagProps = game.slug ? { to: `/games/${game.slug}` } : {};
+
   return (
-    <div
+    <CardTag
+      {...cardTagProps}
       className="relative rounded-xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-1 flex flex-col"
       style={cardStyle}
       onMouseEnter={() => setHovered(true)}
@@ -270,6 +277,6 @@ export default function GameCard({ game, onAdd, onRemove, isFav = false }) {
           )}
         </div>
       </div>
-    </div>
+    </CardTag>
   );
 }

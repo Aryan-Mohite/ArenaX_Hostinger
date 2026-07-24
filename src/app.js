@@ -291,6 +291,12 @@ const BLOG_SLUGS = [
   "finding-the-right-teammates-fps-games",
   "building-a-streaming-setup-on-a-budget",
   "understanding-tournament-formats-explained",
+  "esports-team-finder-guide",
+  "free-esports-tournaments-india-2026",
+  "valorant-vs-cs2-which-tactical-shooter-to-compete-in",
+  "how-esports-tournament-brackets-work",
+  "battle-royale-esports-guide-bgmi-free-fire-pubg",
+  "how-to-start-esports-career-in-india",
 ];
 
 // ─── SEO ADD 6: Dynamic sitemap.xml route ─────────────────────────────────────

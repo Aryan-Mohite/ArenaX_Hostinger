@@ -206,6 +206,389 @@ const BLOG_POSTS = [
       },
     ],
   },
+  {
+    slug: "esports-team-finder-guide",
+    title: "How to Use an Esports Team Finder to Build a Winning Squad",
+    excerpt:
+      "Solo queue can only take you so far. Here's a practical, step-by-step approach to using a team finder to build a squad that actually competes — not just fills a roster.",
+    coverEmoji: "🎮",
+    date: "2026-06-03",
+    author: "ArenaX Team",
+    readTime: "5 min read",
+    tags: ["Team Finder", "Guide", "Esports"],
+    content: [
+      {
+        type: "p",
+        text: "Every competitive player eventually hits the same wall: individual skill stops being the bottleneck, and team coordination becomes the thing separating you from the next bracket. An esports team finder solves the discovery problem — but using one well takes more than just posting \"LFT, Diamond, chill.\"",
+      },
+      {
+        type: "h2",
+        text: "Know what you're actually looking for before you post",
+      },
+      {
+        type: "p",
+        text: "\"Good players\" isn't a filter. Before you open a team finder, write down three things: the role you need filled, the minimum time commitment (how many evenings a week), and whether you're building for casual scrims or serious tournament runs. Vague listings attract vague applicants.",
+      },
+      {
+        type: "h2",
+        text: "What to screen for when you're the one applying",
+      },
+      {
+        type: "ul",
+        items: [
+          "Communication style — do they call out information clearly, or go silent under pressure?",
+          "Schedule overlap — a great player who's only free at hours you're not is a bench player, not a teammate",
+          "Role flexibility — teams with five one-trick players fall apart during draft or agent select",
+          "Stated goals — casual scrim squads and tournament-grinding squads want different things; mismatched expectations end teams fast",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Trial before you commit",
+      },
+      {
+        type: "p",
+        text: "Treat your first few sessions with a new teammate as a trial, not a done deal. Scrim together, play a few ranked games, or run a casual bracket before locking in for a real tournament. Chemistry either shows up in the first week or it doesn't.",
+      },
+      {
+        type: "cta",
+        text: "Ready to build your roster? Browse open Team Finder posts on ArenaX",
+        to: "/teamfinder",
+      },
+      {
+        type: "h2",
+        text: "Keep the door open for substitutes",
+      },
+      {
+        type: "p",
+        text: "Real life happens — work, exams, injuries. Teams that survive long-term usually keep a loose relationship with one or two reliable substitutes found the same way as your core roster, rather than scrambling for a stand-in the night before a bracket opens.",
+      },
+    ],
+  },
+  {
+    slug: "free-esports-tournaments-india-2026",
+    title: "Best Free Esports Tournaments in India (2026 Guide)",
+    excerpt:
+      "You don't need an entry fee or a sponsor to start competing. Here's how to find legitimate free esports tournaments in India across PC and mobile titles.",
+    coverEmoji: "🇮🇳",
+    date: "2026-06-17",
+    author: "ArenaX Team",
+    readTime: "6 min read",
+    tags: ["Tournaments", "India", "Guide"],
+    content: [
+      {
+        type: "p",
+        text: "India's competitive gaming scene has grown fast enough that finding a tournament isn't the hard part anymore — finding one that's actually free, legitimate, and worth your time is. Here's what to look for.",
+      },
+      {
+        type: "h2",
+        text: "What \"free\" should actually mean",
+      },
+      {
+        type: "p",
+        text: "A genuinely free tournament has no entry fee, no hidden \"registration deposit,\" and no requirement to purchase in-game items to qualify. Be wary of listings that ask for payment before revealing bracket details — that's a common pattern in low-quality or outright scam tournaments.",
+      },
+      {
+        type: "h2",
+        text: "Where free tournaments tend to be strongest right now",
+      },
+      {
+        type: "ul",
+        items: [
+          "Tactical FPS (Valorant, CS2) — deep community-run and platform-run bracket culture, frequent open entries",
+          "MOBAs (League of Legends, Dota 2) — fewer casual brackets but strong dedicated communities",
+          "Mobile battle royale (BGMI, Free Fire) — huge volume of community tournaments, especially region-specific ones",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Check the format before you register",
+      },
+      {
+        type: "p",
+        text: "Single elimination brackets punish one bad game; double elimination and round-robin formats are more forgiving for newer teams. If you're just getting tournament experience, favor formats that let you lose once without being knocked out entirely.",
+      },
+      {
+        type: "cta",
+        text: "See what's currently open across every supported game on ArenaX",
+        to: "/tournament",
+      },
+      {
+        type: "h2",
+        text: "Build tournament experience before chasing prize pools",
+      },
+      {
+        type: "p",
+        text: "It's tempting to aim straight for the highest-stakes bracket, but tournament nerves and pub-match nerves are different things. Run a few lower-stakes brackets first — the goal early on is getting comfortable with the format, not the payout.",
+      },
+    ],
+  },
+  {
+    slug: "valorant-vs-cs2-which-tactical-shooter-to-compete-in",
+    title: "Valorant vs CS2: Which Tactical Shooter Should You Compete In?",
+    excerpt:
+      "Both are 5v5 tactical shooters with massive competitive scenes — but they reward different skills. Here's how to decide where to put your tournament hours.",
+    coverEmoji: "⚔️",
+    date: "2026-07-01",
+    author: "ArenaX Team",
+    readTime: "6 min read",
+    tags: ["Valorant", "CS2", "Comparison"],
+    content: [
+      {
+        type: "p",
+        text: "Valorant and CS2 get compared constantly, and for good reason — same core structure (5v5, plant/defuse, round-based economy), completely different feel once you're actually playing competitively.",
+      },
+      {
+        type: "h2",
+        text: "The core difference: abilities vs pure gunplay",
+      },
+      {
+        type: "p",
+        text: "CS2 is closer to a pure aim-and-positioning test — utility exists (smokes, flashes, molotovs) but every agent has access to the same tools. Valorant layers unique per-agent abilities on top of gunplay, which shifts part of the skill expression toward ability timing, lineups, and agent-specific game sense.",
+      },
+      {
+        type: "h3",
+        text: "If you enjoy raw mechanical dueling",
+      },
+      {
+        type: "p",
+        text: "CS2's economy and utility systems are famously deep, but the moment-to-moment gunfights are more mechanically \"pure\" — no abilities to fall back on if your aim is off that day.",
+      },
+      {
+        type: "h3",
+        text: "If you enjoy tactical layering and team compositions",
+      },
+      {
+        type: "p",
+        text: "Valorant's agent roles (duelist, controller, sentinel, initiator) mean team composition and draft-phase decisions matter more, similar to how champion picks matter in MOBAs.",
+      },
+      {
+        type: "h2",
+        text: "Competitive scene and entry point",
+      },
+      {
+        type: "p",
+        text: "Both have thriving tournament ecosystems on ArenaX. CS2 tends to attract players with a longer competitive shooter background; Valorant's newer competitive scene (VCT) means the skill gap between a motivated newcomer and an established team is often smaller.",
+      },
+      {
+        type: "cta",
+        text: "Explore Valorant tournaments and team finder",
+        to: "/games/valorant",
+      },
+      {
+        type: "cta",
+        text: "Explore CS2 tournaments and team finder",
+        to: "/games/counter-strike",
+      },
+      {
+        type: "h2",
+        text: "You don't actually have to pick just one",
+      },
+      {
+        type: "p",
+        text: "Plenty of competitive players run tournaments in both — the fundamentals (crosshair placement, utility timing, communication) transfer more than you'd expect. If you're undecided, try a lower-stakes bracket in each before committing your main tournament hours to one.",
+      },
+    ],
+  },
+  {
+    slug: "how-esports-tournament-brackets-work",
+    title: "How Esports Tournament Brackets Actually Work",
+    excerpt:
+      "Single elimination, double elimination, round robin, Swiss — tournament formats aren't just organizational trivia. Here's what each one means for how you should play.",
+    coverEmoji: "🗂️",
+    date: "2026-07-08",
+    author: "ArenaX Team",
+    readTime: "5 min read",
+    tags: ["Tournaments", "Guide", "Esports"],
+    content: [
+      {
+        type: "p",
+        text: "New tournament players often register without checking the format, then get knocked out in round one and wonder what happened. Understanding bracket structure changes how you should approach even your first match.",
+      },
+      {
+        type: "h2",
+        text: "Single elimination",
+      },
+      {
+        type: "p",
+        text: "Lose once, you're out. The most common format for time-limited events because it resolves fast, but it's brutal for newer teams — a single bad game (bad server, one player's connection dropping, an off day) ends your run entirely.",
+      },
+      {
+        type: "h2",
+        text: "Double elimination",
+      },
+      {
+        type: "p",
+        text: "You get a second life. Lose once and you drop to a \"losers bracket\" instead of being eliminated outright; lose twice and you're out. This format is more forgiving and generally a better starting point for teams still building tournament experience.",
+      },
+      {
+        type: "h2",
+        text: "Round robin",
+      },
+      {
+        type: "p",
+        text: "Every team plays every other team in their group, and standings are decided by overall record rather than a single loss ending your run. Common in the group stage of larger tournaments before elimination brackets kick in.",
+      },
+      {
+        type: "h2",
+        text: "Swiss format",
+      },
+      {
+        type: "p",
+        text: "Teams are paired against opponents with similar records each round (winners play winners, losers play losers), rather than a fixed bracket. It's efficient for large tournaments because it produces meaningful standings without every team having to play every other team.",
+      },
+      {
+        type: "h2",
+        text: "Why this matters before you register",
+      },
+      {
+        type: "ul",
+        items: [
+          "Single elimination: treat every game like it's the final — there's no recovering from a loss",
+          "Double elimination: play a little more aggressively early since one loss isn't fatal",
+          "Round robin / Swiss: a single bad game hurts less, so consistency across the whole event matters more than any one high-stakes match",
+        ],
+      },
+      {
+        type: "cta",
+        text: "Check the format on any current bracket before you register",
+        to: "/tournament",
+      },
+    ],
+  },
+  {
+    slug: "battle-royale-esports-guide-bgmi-free-fire-pubg",
+    title: "Battle Royale Esports in India: BGMI vs Free Fire vs PUBG",
+    excerpt:
+      "India's three biggest competitive battle royale titles reward different playstyles and run on very different hardware. Here's how to pick the right one to compete in.",
+    coverEmoji: "🪂",
+    date: "2026-07-15",
+    author: "ArenaX Team",
+    readTime: "6 min read",
+    tags: ["BGMI", "Free Fire", "Battle Royale"],
+    content: [
+      {
+        type: "p",
+        text: "Battle royale is the biggest competitive mobile category in India by a wide margin, and BGMI, Free Fire, and PUBG: Battlegrounds each have genuinely different competitive identities — not just reskins of each other.",
+      },
+      {
+        type: "h2",
+        text: "BGMI: the India-first standard",
+      },
+      {
+        type: "p",
+        text: "Built specifically for the Indian market, BGMI runs squads of four across large, slower-paced maps (Erangel, Miramar, Sanhok). Its competitive scene rewards patient rotations and positioning as much as raw fighting — matches often come down to zone control in the final circles rather than early aggression.",
+      },
+      {
+        type: "h2",
+        text: "Free Fire: speed and accessibility",
+      },
+      {
+        type: "p",
+        text: "Matches run under 10 minutes with 50 players, and the game is deliberately built to run on lower-end devices. That short match length changes tournament pacing entirely — there's far less room to play passively and recover from a slow start compared to BGMI or PUBG.",
+      },
+      {
+        type: "h2",
+        text: "PUBG: Battlegrounds: the original, still technical",
+      },
+      {
+        type: "p",
+        text: "The genre's originator, primarily played on PC/console in India's competitive scene. Matches reward patience and positioning even more than BGMI, with a comparatively steeper mechanical skill ceiling in gunfights.",
+      },
+      {
+        type: "h2",
+        text: "Which one should you compete in?",
+      },
+      {
+        type: "ul",
+        items: [
+          "Want fast matches and low hardware requirements? Free Fire",
+          "Want the biggest India-specific competitive scene and squad-based strategy? BGMI",
+          "Want the deepest gunplay and don't mind PC/console-only? PUBG: Battlegrounds",
+        ],
+      },
+      {
+        type: "cta",
+        text: "Browse BGMI tournaments and team finder",
+        to: "/games/battlegrounds-mobile-india",
+      },
+      {
+        type: "cta",
+        text: "Browse Free Fire tournaments and team finder",
+        to: "/games/free-fire",
+      },
+    ],
+  },
+  {
+    slug: "how-to-start-esports-career-in-india",
+    title: "How to Start an Esports Career in India: A Realistic Roadmap",
+    excerpt:
+      "Going pro isn't just about mechanical skill. Here's a grounded, step-by-step look at how competitive players in India actually build toward a career in esports.",
+    coverEmoji: "🚀",
+    date: "2026-07-22",
+    author: "ArenaX Team",
+    readTime: "7 min read",
+    tags: ["Career", "Esports", "India"],
+    content: [
+      {
+        type: "p",
+        text: "India's esports scene has grown enough that \"going pro\" is a realistic goal for dedicated players — but the path there looks less like a single lucky break and more like a series of deliberate steps most people skip.",
+      },
+      {
+        type: "h2",
+        text: "1. Pick one game and go deep, not wide",
+      },
+      {
+        type: "p",
+        text: "It's tempting to stay competitive across five games at once, but organizations and teammates want someone who's genuinely elite at one title, not solidly average at several. Pick the game you already enjoy most and commit to it as your primary focus.",
+      },
+      {
+        type: "h2",
+        text: "2. Build a visible track record",
+      },
+      {
+        type: "p",
+        text: "Rank alone doesn't prove tournament performance. Play in as many brackets as you reasonably can — every result, win or loss, becomes part of a track record that scouts, team captains, and organizations can actually look at.",
+      },
+      {
+        type: "h2",
+        text: "3. Find a stable roster before chasing an org",
+      },
+      {
+        type: "p",
+        text: "Organizations pick up teams, not usually individual free agents, especially at the amateur-to-semi-pro stage. A consistent five (or four, or three, depending on the game) who've been grinding tournaments together is a far stronger pitch than a talented solo player with no team history.",
+      },
+      {
+        type: "cta",
+        text: "Use Team Finder to build a roster that can grow together",
+        to: "/teamfinder",
+      },
+      {
+        type: "h2",
+        text: "4. Treat VOD review as part of practice, not an afterthought",
+      },
+      {
+        type: "p",
+        text: "The players who improve fastest aren't necessarily the ones who play the most hours — they're the ones who consistently review their own matches and fix specific, identifiable mistakes instead of just grinding more games.",
+      },
+      {
+        type: "h2",
+        text: "5. Understand that streaming and content are part of the modern path",
+      },
+      {
+        type: "p",
+        text: "Especially in India's growing scene, visibility matters. Many players build an audience alongside their competitive career — it's not required to go pro, but it widens the paths available to you beyond a single org tryout.",
+      },
+      {
+        type: "h2",
+        text: "The realistic timeline",
+      },
+      {
+        type: "p",
+        text: "Most players who eventually go semi-pro or pro spend one to two years building tournament experience and a track record before it turns into anything resembling a paid opportunity. Treat that timeline as normal, not a sign you're behind.",
+      },
+    ],
+  },
 ]
 
 export function getAllPosts() {

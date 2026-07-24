@@ -18,6 +18,33 @@ function Block({ block }) {
       </h2>
     );
   }
+  if (block.type === "h3") {
+    return (
+      <h3 className="font-display font-bold text-lg text-white mt-6 mb-3">
+        {block.text}
+      </h3>
+    );
+  }
+  if (block.type === "ul") {
+    return (
+      <ul className="list-disc list-outside pl-5 space-y-2 mb-5 text-gray-300 leading-relaxed text-base">
+        {block.items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    );
+  }
+  if (block.type === "cta") {
+    return (
+      <Link
+        to={block.to}
+        className="card flex items-center justify-between gap-4 px-5 py-4 mb-6 hover:-translate-y-0.5 transition-transform duration-200 no-underline"
+      >
+        <span className="text-sm text-white font-semibold">{block.text}</span>
+        <span className="text-red text-sm shrink-0">→</span>
+      </Link>
+    );
+  }
   return (
     <p className="text-gray-300 leading-relaxed mb-5 text-base">
       {block.text}

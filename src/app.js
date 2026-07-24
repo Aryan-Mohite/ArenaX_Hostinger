@@ -228,7 +228,7 @@ app.get("/llms.txt", (_req, res) => {
 - **URL:** https://arenax.io
 - **Type:** Esports platform / competitive gaming hub
 - **Audience:** Competitive FPS gamers, esports players, tournament organizers
-- **Supported Games:** Valorant, CS2, League of Legends, Fortnite, Dota 2, Apex Legends
+- **Supported Games:** Valorant, Counter-Strike 2, League of Legends, Dota 2, Apex Legends, Fortnite, Call of Duty: Warzone, PUBG: Battlegrounds, Battlegrounds Mobile India (BGMI), Free Fire, Call of Duty: Mobile
 - **Region:** Global, with focus on South Asia and worldwide FPS community
 - **Cost:** Free to join. No credit card required.
 
@@ -241,7 +241,7 @@ Players can browse and register for free online esports tournaments. Tournaments
 A dedicated matchmaking tool for players looking for teammates. Users post their game, rank, role, and availability. Other players can browse and request to join. Built for FPS games like Valorant and CS2 where team composition matters. Helps solo players find squads for tournaments.
 
 ### Games (/games)
-A directory of all games supported on ArenaX. Each game page lists active tournaments, top players, and community resources. Currently supported: Valorant, CS2 (Counter-Strike 2), League of Legends, Fortnite, Dota 2, Apex Legends.
+A directory of all games supported on ArenaX: Valorant, Counter-Strike 2, League of Legends, Dota 2, Apex Legends, Fortnite, Call of Duty: Warzone, PUBG: Battlegrounds, Battlegrounds Mobile India (BGMI), Free Fire, and Call of Duty: Mobile. Each game also has its own dedicated landing page at /games/<slug> with tournament info, team finder access, and an FAQ specific to that game — see the Game Pages list below.
 
 ### Live Streams (/stream)
 Watch live esports streams directly on ArenaX. Streams are sourced from active tournaments and community players. Integrated stream viewer with no third-party redirect required.
@@ -253,11 +253,17 @@ Community hub for ArenaX players. Players can join game-specific communities, po
 Background on ArenaX, its mission, founding team, and platform values. ArenaX was founded in 2026 with the goal of making esports accessible and competitive for everyone.
 
 ### Blog (/blog)
-Educational esports content covering tournament strategy, team building, streaming setup, and competitive gaming guides. Articles include:
+Educational esports content covering tournament strategy, team building, streaming setup, competitive gaming guides, and esports career advice. Articles include:
 - How to Join Valorant Tournaments Online
 - Finding the Right Teammates for FPS Games
 - Building a Streaming Setup on a Budget
 - Understanding Tournament Formats Explained
+- How to Use an Esports Team Finder to Build a Winning Squad
+- Best Free Esports Tournaments in India (2026 Guide)
+- Valorant vs CS2: Which Tactical Shooter Should You Compete In?
+- How Esports Tournament Brackets Actually Work
+- Battle Royale Esports in India: BGMI vs Free Fire vs PUBG
+- How to Start an Esports Career in India: A Realistic Roadmap
 
 ## Key Pages
 - Home: https://arenax.io/
@@ -270,6 +276,19 @@ Educational esports content covering tournament strategy, team building, streami
 - About: https://arenax.io/about
 - Sign In: https://arenax.io/login
 - Register: https://arenax.io/register
+
+## Game Pages (/games/<slug>)
+- Valorant: https://arenax.io/games/valorant
+- Counter-Strike 2: https://arenax.io/games/counter-strike
+- League of Legends: https://arenax.io/games/league-of-legends
+- Dota 2: https://arenax.io/games/dota-2
+- Apex Legends: https://arenax.io/games/apex-legends
+- Fortnite: https://arenax.io/games/fortnite
+- Call of Duty: Warzone: https://arenax.io/games/warzone
+- PUBG: Battlegrounds: https://arenax.io/games/pubg-battlegrounds
+- Battlegrounds Mobile India (BGMI): https://arenax.io/games/battlegrounds-mobile-india
+- Free Fire: https://arenax.io/games/free-fire
+- Call of Duty: Mobile: https://arenax.io/games/cod-mobile
 
 ## Technical
 - Sitemap: https://arenax.io/sitemap.xml

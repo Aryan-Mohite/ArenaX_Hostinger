@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CustomCursor from "./components/CustomCursor";
 import Loader from "./components/Loader";
 import AdminRoute from "./components/AdminRoute";
+import { DailiesTransitionProvider } from "./components/dailies/DailiesTransition";
 
 // ─── Route-based code splitting ───────────────────────────────────────────────
 // PERFORMANCE FIX (round 4): All pages were previously statically imported,
@@ -28,6 +29,7 @@ const TeamFinder = lazy(() => import("./pages/TeamFinder"));
 const Stream     = lazy(() => import("./pages/Stream"));
 const Communities = lazy(() => import("./pages/Communities"));
 const SquadMatch  = lazy(() => import("./pages/SquadMatch"));
+const Dailies     = lazy(() => import("./pages/Dailies"));
 
 // ── Auth pages
 const Login          = lazy(() => import("./pages/Login"));
@@ -76,6 +78,7 @@ function PageFallback() {
 export default function App() {
   return (
     <BrowserRouter>
+      <DailiesTransitionProvider>
       <Loader />
       <CustomCursor />
       <Suspense fallback={<PageFallback />}>
@@ -146,10 +149,23 @@ export default function App() {
             }
           />
 
+          {/* ── Dailies (per-game daily quiz) ── */}
+          <Route
+            path="/dailies"
+            element={
+              <Layout>
+                <ProtectedRoute>
+                  <Dailies />
+                </ProtectedRoute>
+              </Layout>
+            }
+          />
+
           {/* ── 404 — no Layout on purpose: full-bleed, no Navbar/Footer ── */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </DailiesTransitionProvider>
     </BrowserRouter>
   );
 }

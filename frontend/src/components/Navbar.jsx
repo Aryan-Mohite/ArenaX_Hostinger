@@ -1,4 +1,5 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useDailiesTransition } from "./dailies/DailiesTransition";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -6,6 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 const PRIMARY_LINKS = [
   { to: "/", label: "Home" },
   { to: "/games", label: "Games" },
+  { to: "/dailies", label: "Dailies", isNew: true },
   { to: "/tournament", label: "The Arena" },
   { to: "/teamfinder", label: "TeamUP Arena" },
   { to: "/squadmatch", label: "Squad Match", isNew: true },
@@ -166,6 +168,16 @@ export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const { triggerTransition } = useDailiesTransition();
+
+  // The Dailies link gets a dramatic glitch/wipe transition instead of a
+  // plain route swap — every other nav link behaves as a normal <NavLink>.
+  const handleNavClick = (e, to) => {
+    if (to === "/dailies") {
+      e.preventDefault();
+      triggerTransition(() => navigate(to));
+    }
+  };
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -232,6 +244,7 @@ export default function Navbar() {
               key={to}
               to={to}
               end={to === "/"}
+              onClick={(e) => handleNavClick(e, to)}
               className={({ isActive }) => navLinkBase(isActive)}
             >
               {({ isActive }) => (
@@ -576,7 +589,10 @@ export default function Navbar() {
               key={to}
               to={to}
               end={to === "/"}
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => {
+                handleNavClick(e, to);
+                setMobileOpen(false);
+              }}
               className={({ isActive }) =>
                 "px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border flex items-center gap-2 " +
                 (isActive

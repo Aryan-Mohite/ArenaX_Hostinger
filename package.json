@@ -9,7 +9,8 @@
     "dev": "nodemon --env-file=.env server.js",
     "build:frontend": "node scripts/build-frontend.js",
     "postinstall": "npm run build:frontend",
-    "backfill:achievements": "node scripts/backfillAchievements.js"
+    "backfill:achievements": "node scripts/backfillAchievements.js",
+    "import:dailies": "node scripts/importDailyQuestions.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

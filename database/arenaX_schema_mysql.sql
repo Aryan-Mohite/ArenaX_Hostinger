@@ -1610,3 +1610,102 @@ INSERT INTO achievements (achievement_key, name, description, category, tier, th
 ('dna_match_25',     'Crowd Puller',   'Got 25 Gamer DNA matches.',       'dna_match', 4, 25,  'dna_25'),
 ('dna_match_50',     'Viral',          'Got 50 Gamer DNA matches.',       'dna_match', 5, 50,  'dna_50'),
 ('dna_match_100',    'DNA Royalty',    'Got 100 Gamer DNA matches.',      'dna_match', 6, 100, 'dna_100');
+
+
+
+
+
+
+
+
+
+-- ============================================================
+-- DAILIES — daily per-game quiz feature (arenax.io/dailies)
+-- Additive only: does not modify any existing table.
+-- Safe to run on an existing database — uses CREATE TABLE IF NOT EXISTS.
+-- ============================================================
+
+-- 1. Question bank — Aryan writes/imports these per game (see
+--    scripts/importDailyQuestions.js). "options" are stored as four
+--    plain columns rather than JSON so a human can eyeball/edit rows
+--    directly in phpMyAdmin/Hostinger's DB tool.
+CREATE TABLE IF NOT EXISTS daily_quiz_questions (
+    question_id     INT AUTO_INCREMENT PRIMARY KEY,
+    game_id         INT                            NOT NULL,
+    difficulty      ENUM('easy','medium','hard')   NOT NULL,
+    question_text   TEXT                           NOT NULL,
+    media_url       TEXT                           DEFAULT NULL,   -- optional image/code-snippet prompt
+    option_a        VARCHAR(255)                   NOT NULL,
+    option_b        VARCHAR(255)                   NOT NULL,
+    option_c        VARCHAR(255)                   NOT NULL,
+    option_d        VARCHAR(255)                   NOT NULL,
+    correct_option  CHAR(1)                        NOT NULL,       -- 'a' | 'b' | 'c' | 'd'
+    status          VARCHAR(20)                    NOT NULL DEFAULT 'active',
+    created_at      DATETIME                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_dqq_game FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE,
+    CONSTRAINT chk_dqq_correct_option CHECK (correct_option IN ('a','b','c','d'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_dqq_game_diff_status ON daily_quiz_questions(game_id, difficulty, status);
+
+-- 2. One row per user, per game, per day. question_ids is the server-drawn,
+--    seeded set of 5 question IDs for that user+game+date so a resumed
+--    session always reconstructs the same 5 questions in the same order.
+CREATE TABLE IF NOT EXISTS daily_quiz_sessions (
+    session_id                    INT AUTO_INCREMENT PRIMARY KEY,
+    user_id                       INT                             NOT NULL,
+    game_id                       INT                             NOT NULL,
+    quiz_date                     DATE                            NOT NULL,
+    question_ids                  JSON                            NOT NULL,
+    current_index                 TINYINT                         NOT NULL DEFAULT 0,
+    current_question_started_at   DATETIME                        DEFAULT NULL,
+    status                        ENUM('in_progress','completed') NOT NULL DEFAULT 'in_progress',
+    correct_count                 TINYINT                         NOT NULL DEFAULT 0,
+    total_time_ms                 INT                             NOT NULL DEFAULT 0,
+    started_at                    DATETIME                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at                  DATETIME                        DEFAULT NULL,
+    UNIQUE KEY uq_dqs_user_game_date (user_id, game_id, quiz_date),
+    CONSTRAINT fk_dqs_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_dqs_game FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Powers both the daily leaderboard query and the "already played today" check.
+CREATE INDEX idx_dqs_leaderboard ON daily_quiz_sessions(game_id, quiz_date, status, correct_count, total_time_ms);
+
+-- 3. Per-question audit trail. This is what makes the timer server-authoritative:
+--    time_taken_ms is computed server-side from current_question_started_at,
+--    never trusted from the client.
+CREATE TABLE IF NOT EXISTS daily_quiz_answers (
+    answer_id        INT AUTO_INCREMENT PRIMARY KEY,
+    session_id        INT          NOT NULL,
+    question_id        INT          NOT NULL,
+    question_index       TINYINT      NOT NULL,
+    selected_option        CHAR(1)      DEFAULT NULL,   -- NULL = no answer / timed out
+    is_correct               BOOLEAN      NOT NULL DEFAULT FALSE,
+    time_taken_ms               INT          NOT NULL,
+    forfeited                     BOOLEAN      NOT NULL DEFAULT FALSE,  -- tab-blur forfeit
+    answered_at                     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dqa_session_question (session_id, question_index),
+    CONSTRAINT fk_dqa_session  FOREIGN KEY (session_id)  REFERENCES daily_quiz_sessions(session_id)   ON DELETE CASCADE,
+    CONSTRAINT fk_dqa_question FOREIGN KEY (question_id) REFERENCES daily_quiz_questions(question_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Per-game daily streak — separate from the login streak in user_streaks.
+--    best_correct_count / best_time_ms are denormalized "personal best"
+--    fields, updated on every completion, so the lobby + all-time
+--    leaderboard don't need to scan full session history.
+CREATE TABLE IF NOT EXISTS daily_quiz_streaks (
+    user_id              INT      NOT NULL,
+    game_id              INT      NOT NULL,
+    current_streak       INT      NOT NULL DEFAULT 0,
+    longest_streak        INT      NOT NULL DEFAULT 0,
+    last_completed_date       DATE     DEFAULT NULL,
+    best_correct_count           TINYINT  NOT NULL DEFAULT 0,
+    best_time_ms                    INT      DEFAULT NULL,
+    PRIMARY KEY (user_id, game_id),
+    CONSTRAINT fk_dqstreak_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_dqstreak_game FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Powers the all-time leaderboard tab: correct DESC, time ASC.
+CREATE INDEX idx_dqstreak_alltime ON daily_quiz_streaks(game_id, best_correct_count DESC, best_time_ms ASC);

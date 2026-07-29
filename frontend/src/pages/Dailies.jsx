@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import SEO from "../components/SEO";
 import DailiesSidebar from "../components/dailies/DailiesSidebar";
@@ -134,8 +135,15 @@ export default function Dailies() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)]" style={{ background: "#000" }}>
+    <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: "#000" }}>
       <SEO title="Dailies | ArenaX" description="Test your game knowledge with a daily 5-question quiz. Build your streak and climb the leaderboard." />
+
+      <Link
+        to="/"
+        className="fixed top-4 left-4 z-50 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white/90 bg-black/60 border border-white/10 backdrop-blur-sm hover:bg-black/80 hover:border-red/40 transition-colors"
+      >
+        <span aria-hidden="true">←</span> Back to Home
+      </Link>
 
       <div ref={sidebarRef}>
         <DailiesSidebar

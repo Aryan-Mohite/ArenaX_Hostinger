@@ -7,7 +7,6 @@ import { useTheme } from "../context/ThemeContext";
 const PRIMARY_LINKS = [
   { to: "/", label: "Home" },
   { to: "/games", label: "Games" },
-  { to: "/dailies", label: "Dailies", isNew: true },
   { to: "/tournament", label: "The Arena" },
   { to: "/teamfinder", label: "TeamUP Arena" },
   { to: "/squadmatch", label: "Squad Match", isNew: true },

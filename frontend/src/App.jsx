@@ -149,15 +149,15 @@ export default function App() {
             }
           />
 
-          {/* ── Dailies (per-game daily quiz) ── */}
+          {/* ── Dailies (per-game daily quiz) — no Layout on purpose:
+               full-bleed, no Navbar/Footer. Dailies.jsx has its own
+               "Back to Home" button instead. ── */}
           <Route
             path="/dailies"
             element={
-              <Layout>
-                <ProtectedRoute>
-                  <Dailies />
-                </ProtectedRoute>
-              </Layout>
+              <ProtectedRoute>
+                <Dailies />
+              </ProtectedRoute>
             }
           />
 
